@@ -1,0 +1,2411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Essentials - Components, JSX, Props, State & More</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Page & Print ─────────────────────────────────────── */
+      @page {
+        size: 720px 1020px;
+        margin: 0;
+      }
+
+      /* ── Reset ────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ── Root Variables ───────────────────────────────────── */
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #1c2129;
+        --accent: #58a6ff;
+        --accent2: #79c0ff;
+        --accent3: #a371f7;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --orange: #f0883e;
+        --red: #f85149;
+        --pink: #db61a2;
+        --fg: #e6edf3;
+        --muted: #8b949e;
+        --border: #30363d;
+        --border2: #21262d;
+        --code-bg: #0d1117;
+        --radius: 10px;
+        --radius-sm: 6px;
+      }
+
+      /* ── Body ─────────────────────────────────────────────── */
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          "Inter",
+          "Noto Sans SC",
+          -apple-system,
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── Cover Page ───────────────────────────────────────── */
+      .cover {
+        height: 1020px;
+        width: 720px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+        break-after: page;
+      }
+      .cover::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        left: -80px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(88, 166, 255, 0.08) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+      }
+      .cover::after {
+        content: "";
+        position: absolute;
+        bottom: -40px;
+        right: -40px;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(
+          circle,
+          rgba(163, 113, 247, 0.06) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+      }
+      .cover-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--accent), var(--accent3));
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        padding: 6px 18px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+        position: relative;
+        z-index: 1;
+      }
+      .cover h1 {
+        font-size: 52px;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        background: linear-gradient(
+          135deg,
+          var(--fg) 0%,
+          var(--accent2) 50%,
+          var(--accent3) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+      }
+      .cover-sub {
+        font-size: 17px;
+        color: var(--muted);
+        font-weight: 400;
+        max-width: 440px;
+        margin-bottom: 48px;
+        position: relative;
+        z-index: 1;
+      }
+      .cover-meta {
+        display: flex;
+        gap: 24px;
+        font-size: 12px;
+        color: var(--muted);
+        position: relative;
+        z-index: 1;
+      }
+      .cover-meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .cover-meta .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      /* ── Main Content ─────────────────────────────────────── */
+      .content {
+        padding: 40px 36px 60px;
+      }
+
+      /* ── Chapter ──────────────────────────────────────────── */
+      .chapter {
+        margin-top: 28px;
+      }
+      .chapter:first-child {
+        margin-top: 0;
+      }
+      .chapter-num {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: rgba(88, 166, 255, 0.1);
+        padding: 4px 12px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+      .chapter h2 {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: var(--fg);
+        margin-bottom: 16px;
+        line-height: 1.25;
+      }
+      .chapter h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent2);
+        margin: 28px 0 10px;
+      }
+      .chapter h4 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--fg);
+        margin: 20px 0 8px;
+      }
+      .chapter p {
+        margin-bottom: 14px;
+        color: var(--fg);
+      }
+      .chapter ul,
+      .chapter ol {
+        margin: 10px 0 16px 20px;
+      }
+      .chapter li {
+        margin-bottom: 6px;
+        color: var(--fg);
+      }
+      .chapter li::marker {
+        color: var(--accent);
+      }
+
+      /* ── Figure / Image ───────────────────────────────────── */
+      .figure {
+        margin: 24px 0;
+        break-inside: avoid;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--surface);
+      }
+      .figure img {
+        width: 100%;
+        display: block;
+      }
+      .figure-caption {
+        padding: 10px 16px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        border-top: 1px solid var(--border2);
+      }
+
+      /* ── Code Block ───────────────────────────────────────── */
+      .code-block {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        margin: 16px 0;
+        overflow: hidden;
+        break-inside: avoid;
+      }
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border2);
+      }
+      .code-lang {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .code-dots {
+        display: flex;
+        gap: 5px;
+      }
+      .code-dots span {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+      }
+      .code-dots span:nth-child(1) {
+        background: #f85149;
+      }
+      .code-dots span:nth-child(2) {
+        background: #d29922;
+      }
+      .code-dots span:nth-child(3) {
+        background: #3fb950;
+      }
+
+      .code-block pre {
+        padding: 14px 16px;
+        overflow-x: auto;
+        font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: var(--fg);
+      }
+      .code-block code {
+        font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+        font-size: inherit;
+      }
+
+      /* ── Syntax Tokens (VS Code Dark+) ────────────────────── */
+      .t-kw {
+        color: #c678dd;
+      } /* keyword: import, export, const, function, return, if, else */
+      .t-fn {
+        color: #61afef;
+      } /* function name */
+      .t-str {
+        color: #98c379;
+      } /* string */
+      .t-num {
+        color: #d19a66;
+      } /* number */
+      .t-cmt {
+        color: #5c6370;
+        font-style: italic;
+      } /* comment */
+      .t-tag {
+        color: #e06c75;
+      } /* JSX tag / HTML tag */
+      .t-attr {
+        color: #d19a66;
+      } /* attribute name */
+      .t-punc {
+        color: #abb2bf;
+      } /* punctuation */
+      .t-type {
+        color: #e5c07b;
+      } /* type / class name */
+      .t-op {
+        color: #56b6c2;
+      } /* operator */
+      .t-comp {
+        color: #61afef;
+      } /* component name */
+      .t-bool {
+        color: #d19a66;
+      } /* boolean */
+      .t-hook {
+        color: #c678dd;
+      } /* React hook */
+
+      /* ── Info / Tip / Warning Cards ────────────────────────── */
+      .card {
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+        margin: 16px 0;
+        break-inside: avoid;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+      .card-tip {
+        background: rgba(63, 185, 80, 0.08);
+        border-left: 3px solid var(--green);
+        color: var(--fg);
+      }
+      .card-warn {
+        background: rgba(210, 153, 34, 0.08);
+        border-left: 3px solid var(--yellow);
+        color: var(--fg);
+      }
+      .card-danger {
+        background: rgba(248, 81, 73, 0.08);
+        border-left: 3px solid var(--red);
+        color: var(--fg);
+      }
+      .card-info {
+        background: rgba(88, 166, 255, 0.08);
+        border-left: 3px solid var(--accent);
+        color: var(--fg);
+      }
+      .card strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+      }
+
+      /* ── Interview Q&A ────────────────────────────────────── */
+      .qa-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px 18px;
+        margin: 14px 0;
+        break-inside: avoid;
+      }
+      .qa-q {
+        font-weight: 700;
+        color: var(--accent2);
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      .qa-a {
+        color: var(--fg);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      /* ── Divider ──────────────────────────────────────────── */
+      .divider {
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--border),
+          transparent
+        );
+        margin: 36px 0;
+      }
+
+      /* ── Inline code ──────────────────────────────────────── */
+      .ic {
+        font-family: "Fira Code", monospace;
+        font-size: 12px;
+        background: rgba(88, 166, 255, 0.1);
+        color: var(--accent2);
+        padding: 2px 7px;
+        border-radius: 4px;
+      }
+
+      /* ── Table of Contents ────────────────────────────────── */
+      .toc {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin: 24px 0 0;
+      }
+      .toc h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 14px;
+      }
+      .toc-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        columns: 2;
+        column-gap: 20px;
+      }
+      .toc-list li {
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: var(--muted);
+        break-inside: avoid;
+      }
+      .toc-list li span {
+        color: var(--accent);
+        font-weight: 600;
+        margin-right: 6px;
+      }
+
+      /* ── Mini-Project Card ────────────────────────────────── */
+      .project-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin: 16px 0;
+        break-inside: avoid;
+      }
+      .project-card h4 {
+        color: var(--accent2);
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+
+      /* ── Badge ────────────────────────────────────────────── */
+      .badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-right: 6px;
+      }
+      .badge-new {
+        background: rgba(88, 166, 255, 0.15);
+        color: var(--accent);
+      }
+      .badge-pro {
+        background: rgba(163, 113, 247, 0.15);
+        color: var(--accent3);
+      }
+      .badge-imp {
+        background: rgba(248, 81, 73, 0.15);
+        color: var(--red);
+      }
+
+      /* ── Screen Preview ───────────────────────────────────── */
+      @media screen {
+        body {
+          background: #000;
+        }
+        .cover,
+        .content {
+          max-width: 720px;
+          margin: 0 auto;
+        }
+        .cover {
+          margin-top: 20px;
+          border-radius: var(--radius);
+          box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+          background: var(--bg);
+          border-radius: var(--radius);
+          margin-top: 4px;
+          margin-bottom: 40px;
+          box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════════════════
+     COVER PAGE
+     ═══════════════════════════════════════════════════════ -->
+    <div class="cover">
+      <div class="cover-badge">Complete Guide</div>
+      <h1>React<br />Essentials - Components, JSX, Props, State & More</h1>
+      <p class="cover-sub">
+        A comprehensive guide covering components, JSX, props, state, events,
+        styling, lists, mini-projects, and interview preparation.
+      </p>
+      <div class="cover-meta">
+        <span><span class="dot"></span> 18 Chapters</span>
+        <span><span class="dot"></span> 16 Diagrams</span>
+        <span><span class="dot"></span> 50+ Code Examples</span>
+        <span><span class="dot"></span> Interview Q&amp;A</span>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════════════════ -->
+    <div class="content">
+      <!-- Table of Contents -->
+      <div class="toc">
+        <h3>&#128209; Table of Contents</h3>
+        <ul class="toc-list">
+          <li><span>01</span> It's All About Components</li>
+          <li><span>02</span> JSX &amp; React Components</li>
+          <li><span>03</span> Creating Custom Components</li>
+          <li><span>04</span> Dynamic Values in JSX</li>
+          <li><span>05</span> Dynamic Attributes &amp; Image Loading</li>
+          <li><span>06</span> Component Reusability &amp; Props</li>
+          <li><span>07</span> Project Structure &amp; Separate Files</li>
+          <li><span>08</span> The children Prop</li>
+          <li><span>09</span> Reacting to Events</li>
+          <li><span>10</span> Passing Functions as Props</li>
+          <li><span>11</span> Custom Parameters to Handlers</li>
+          <li><span>12</span> Managing State with useState</li>
+          <li><span>13</span> Deriving Data from State</li>
+          <li><span>14</span> Conditional Rendering</li>
+          <li><span>15</span> CSS Styling &amp; Dynamic Styling</li>
+          <li><span>16</span> Outputting Lists Dynamically</li>
+          <li><span>17</span> Mini-Project: Interactive Tab Viewer</li>
+          <li><span>18</span> Interview Q&amp;A</li>
+        </ul>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 1 — It's All About Components
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 01</span>
+        <h2>It's All About Components</h2>
+
+        <p>
+          React is a <strong>component-based</strong> UI library. Instead of
+          building one monolithic page, you decompose your interface into small,
+          self-contained building blocks called <em>components</em>. Each
+          component owns its markup, styling, and logic — and can be composed
+          together like LEGO pieces to form complex UIs.
+        </p>
+
+        <h3>Why Components?</h3>
+        <ul>
+          <li>
+            <strong>Reusability</strong> — Write once, use everywhere. A
+            <span class="ic">Button</span> component works on every page.
+          </li>
+          <li>
+            <strong>Separation of Concerns</strong> — Each component handles its
+            own rendering and behavior.
+          </li>
+          <li>
+            <strong>Composability</strong> — Components nest inside other
+            components, forming a tree.
+          </li>
+          <li>
+            <strong>Maintainability</strong> — Small, focused units are easier
+            to test, debug, and refactor.
+          </li>
+        </ul>
+
+        <h3>Component Tree</h3>
+        <p>
+          React applications form a <strong>component tree</strong>. The root
+          component (typically <span class="ic">App</span>) sits at the top, and
+          every other component is a descendant. Data flows <em>down</em> via
+          props, and events flow <em>up</em> via callbacks.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// The simplest React component — a function returning JSX</span>
+<span class="t-kw">function</span> <span class="t-comp">App</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;h1&gt;</span>My App<span class="t-tag">&lt;/h1&gt;</span>
+      <span class="t-tag">&lt;Header</span> <span class="t-tag">/&gt;</span>
+      <span class="t-tag">&lt;MainContent</span> <span class="t-tag">/&gt;</span>
+      <span class="t-tag">&lt;Footer</span> <span class="t-tag">/&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Name components with <strong>PascalCase</strong> (e.g.,
+          <span class="ic">Header</span>, not <span class="ic">header</span>).
+          This is required for React to distinguish custom components from
+          native HTML elements.
+        </div>
+
+        <div class="card card-warn">
+          <strong>&#9888; Common Pitfall</strong>
+          A component must return <strong>exactly one root element</strong>.
+          Wrap siblings in a <span class="ic">&lt;div&gt;</span> or a
+          <span class="ic">&lt;&gt;…&lt;/&gt;</span> fragment.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-02-its-all-about-components.jpg"
+            alt="It's All About Components diagram"
+          />
+          <div class="figure-caption">
+            Fig 1.1 — React applications are built from nested, reusable
+            components
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 2 — JSX & React Components
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 02</span>
+        <h2>JSX &amp; React Components</h2>
+
+        <p>
+          <strong>JSX</strong> (JavaScript XML) is a syntax extension that lets
+          you write HTML-like markup inside JavaScript. It is not a string
+          template — JSX compiles to
+          <span class="ic">React.createElement()</span> calls under the hood,
+          producing real JavaScript objects.
+        </p>
+
+        <h3>JSX vs. HTML — Key Differences</h3>
+        <ul>
+          <li>
+            <span class="ic">class</span> →
+            <span class="ic">className</span> (reserved keyword in JS)
+          </li>
+          <li><span class="ic">for</span> → <span class="ic">htmlFor</span></li>
+          <li>
+            Self-closing tags <em>must</em> close:
+            <span class="ic">&lt;img /&gt;</span>,
+            <span class="ic">&lt;br /&gt;</span>
+          </li>
+          <li>
+            Inline styles use camelCase:
+            <span class="ic">backgroundColor</span> not
+            <span class="ic">background-color</span>
+          </li>
+          <li>
+            Event handlers use camelCase: <span class="ic">onClick</span> not
+            <span class="ic">onclick</span>
+          </li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// JSX is compiled to React.createElement calls</span>
+<span class="t-cmt">// What you write:</span>
+<span class="t-kw">const</span> element <span class="t-op">=</span> <span class="t-tag">&lt;h1</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"title"</span><span class="t-tag">&gt;</span>Hello<span class="t-tag">&lt;/h1&gt;</span>;
+
+<span class="t-cmt">// What React compiles it to:</span>
+<span class="t-kw">const</span> element <span class="t-op">=</span> <span class="t-fn">React.createElement</span><span class="t-punc">(</span>
+  <span class="t-str">'h1'</span>,
+  <span class="t-punc">{</span> className<span class="t-punc">:</span> <span class="t-str">'title'</span> <span class="t-punc">},</span>
+  <span class="t-str">'Hello'</span>
+<span class="t-punc">);</span></code></pre>
+        </div>
+
+        <h3>Expressions in JSX</h3>
+        <p>
+          Use <strong>curly braces</strong> <span class="ic">{}</span> to embed
+          any JavaScript expression — variables, function calls, ternaries, or
+          arithmetic.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">const</span> user <span class="t-op">=</span> <span class="t-punc">{</span> name<span class="t-punc">:</span> <span class="t-str">'Alice'</span>, age<span class="t-punc">:</span> <span class="t-num">28</span> <span class="t-punc">};</span>
+
+<span class="t-kw">function</span> <span class="t-comp">Profile</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Name: <span class="t-punc">{</span>user.name<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Age: <span class="t-punc">{</span>user.age<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Next year: <span class="t-punc">{</span>user.age <span class="t-op">+</span> <span class="t-num">1</span><span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Status: <span class="t-punc">{</span>user.age <span class="t-op">&gt;=</span> <span class="t-num">18</span> <span class="t-op">?</span> <span class="t-str">'Adult'</span> <span class="t-op">:</span> <span class="t-str">'Minor'</span><span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-danger">
+          <strong>&#128293; Common Pitfall</strong>
+          You cannot use <span class="ic">if/else</span> or
+          <span class="ic">for</span> loops directly inside
+          <span class="ic">{}</span>. Only <em>expressions</em> are allowed. Use
+          ternary operators or move logic above the
+          <span class="ic">return</span>.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-04-jsx-and-react-cmp.jpg"
+            alt="JSX and React Components diagram"
+          />
+          <div class="figure-caption">
+            Fig 2.1 — JSX syntax and its relationship to React components
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 3 — Creating Custom Components
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 03</span>
+        <h2>Creating &amp; Using a First Custom Component</h2>
+
+        <p>
+          Creating a custom component in React is as simple as writing a
+          <strong>JavaScript function</strong> that returns JSX. This function
+          becomes a reusable tag you can use anywhere in your application.
+        </p>
+
+        <h3>Step-by-Step</h3>
+        <ol>
+          <li>Define a function with a <strong>PascalCase</strong> name.</li>
+          <li>Return JSX from that function.</li>
+          <li>
+            Use the component as a tag:
+            <span class="ic">&lt;MyComponent /&gt;</span>
+          </li>
+        </ol>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Step 1: Define the component</span>
+<span class="t-kw">function</span> <span class="t-comp">CustomButton</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;button</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"btn"</span><span class="t-tag">&gt;</span>Click Me<span class="t-tag">&lt;/button&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// Step 2: Use it inside another component</span>
+<span class="t-kw">function</span> <span class="t-comp">App</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;h1&gt;</span>Welcome<span class="t-tag">&lt;/h1&gt;</span>
+      <span class="t-tag">&lt;CustomButton</span> <span class="t-tag">/&gt;</span>
+      <span class="t-tag">&lt;CustomButton</span> <span class="t-tag">/&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Arrow Function Syntax</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Arrow function form (equivalent)</span>
+<span class="t-kw">const</span> <span class="t-comp">CustomButton</span> <span class="t-op">=</span> <span class="t-punc">()</span> <span class="t-op">=&gt;</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-tag">&lt;button</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"btn"</span><span class="t-tag">&gt;</span>Click Me<span class="t-tag">&lt;/button&gt;</span>;
+<span class="t-punc">};</span>
+
+<span class="t-cmt">// Implicit return (for simple components)</span>
+<span class="t-kw">const</span> <span class="t-comp">Logo</span> <span class="t-op">=</span> <span class="t-punc">()</span> <span class="t-op">=&gt;</span> <span class="t-tag">&lt;img</span> <span class="t-attr">src</span><span class="t-op">=</span><span class="t-str">"logo.png"</span> <span class="t-attr">alt</span><span class="t-op">=</span><span class="t-str">"Logo"</span> <span class="t-tag">/&gt;</span>;</code></pre>
+        </div>
+
+        <div class="card card-info">
+          <strong>&#128218; Note</strong>
+          React treats components starting with a
+          <strong>lowercase letter</strong> as native HTML tags. Always start
+          custom component names with an uppercase letter.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-05-creating-and-using-a-first-custom-cmp.jpg"
+            alt="Creating and using a first custom component"
+          />
+          <div class="figure-caption">
+            Fig 3.1 — Defining and consuming a custom React component
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 4 — Dynamic Values in JSX
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 04</span>
+        <h2>Dynamic Values in JSX</h2>
+
+        <p>
+          JSX is <strong>not</strong> a static template — it's JavaScript. You
+          can inject dynamic values anywhere using
+          <span class="ic">{}</span> curly braces. This is what makes React UIs
+          truly reactive: when values change, the UI updates automatically.
+        </p>
+
+        <h3>Where Can You Use Dynamic Values?</h3>
+        <ul>
+          <li>
+            <strong>Between tags</strong>:
+            <span class="ic">&lt;h1&gt;{title}&lt;/h1&gt;</span>
+          </li>
+          <li>
+            <strong>In attributes</strong>:
+            <span class="ic">&lt;img src={imageUrl} /&gt;</span>
+          </li>
+          <li>
+            <strong>In styles</strong>:
+            <span class="ic">style={{ color: textColor }}</span>
+          </li>
+          <li>
+            <strong>In expressions</strong>:
+            <span class="ic">{count + 1}</span>,
+            <span class="ic">{items.length}</span>
+          </li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">Product</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">const</span> title <span class="t-op">=</span> <span class="t-str">'React Course'</span>;
+  <span class="t-kw">const</span> price <span class="t-op">=</span> <span class="t-num">49.99</span>;
+  <span class="t-kw">const</span> discount <span class="t-op">=</span> <span class="t-num">0.2</span>;
+  <span class="t-kw">const</span> finalPrice <span class="t-op">=</span> price <span class="t-op">*</span> (<span class="t-num">1</span> <span class="t-op">-</span> discount);
+
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;h2&gt;</span><span class="t-punc">{</span>title<span class="t-punc">}</span><span class="t-tag">&lt;/h2&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Original: ${<span class="t-punc">{</span>price<span class="t-punc">}</span>}<span class="t-tag">&lt;/p&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Final: ${<span class="t-punc">{</span>finalPrice.toFixed(<span class="t-num">2</span>)<span class="t-punc">}</span>}<span class="t-tag">&lt;/p&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Savings: <span class="t-punc">{</span>(discount <span class="t-op">*</span> <span class="t-num">100</span>)<span class="t-punc">}</span>%<span class="t-tag">&lt;/p&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-warn">
+          <strong>&#9888; Common Pitfall</strong>
+          Objects are <strong>not valid</strong> as React children.
+          <span class="ic">{object}</span> will throw an error. Access specific
+          properties: <span class="ic">{user.name}</span>, not
+          <span class="ic">{user}</span>.
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Derive computed values <strong>above</strong> the return statement for
+          cleaner JSX. Avoid complex expressions inline:
+          <span class="ic">{a + b * c}</span> is fine, but longer formulas
+          should use a named variable.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-07-dynamic-values.jpg"
+            alt="Dynamic Values in JSX"
+          />
+          <div class="figure-caption">
+            Fig 4.1 — Injecting dynamic values into JSX with curly braces
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 5 — Dynamic Attributes & Image Loading
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 05</span>
+        <h2>Dynamic Attributes &amp; Image Loading</h2>
+
+        <p>
+          Attributes in JSX can also receive dynamic values. This is essential
+          for image sources, dynamic CSS classes, ARIA labels, and any prop that
+          varies at runtime.
+        </p>
+
+        <h3>Dynamic Image Sources</h3>
+        <p>
+          When referencing local images stored in your project's
+          <span class="ic">src/</span> folder, you
+          <strong>must import them</strong> so the bundler (Vite/Webpack)
+          processes and includes them in the output.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Importing a local image asset</span>
+<span class="t-kw">import</span> reactImg <span class="t-kw">from</span> <span class="t-str">'./assets/react-core-concepts.png'</span>;
+
+<span class="t-kw">function</span> <span class="t-comp">Hero</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">const</span> altText <span class="t-op">=</span> <span class="t-str">'React Core Concepts'</span>;
+  <span class="t-kw">return</span> <span class="t-tag">&lt;img</span> <span class="t-attr">src</span><span class="t-op">=</span><span class="t-punc">{</span>reactImg<span class="t-punc">}</span> <span class="t-attr">alt</span><span class="t-op">=</span><span class="t-punc">{</span>altText<span class="t-punc">}</span> <span class="t-tag">/&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Dynamic classNames</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">NavItem</span><span class="t-punc">({</span> label, isActive <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;li</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-punc">{</span>isActive <span class="t-op">?</span> <span class="t-str">'nav-active'</span> <span class="t-op">:</span> <span class="t-str">'nav-item'</span><span class="t-punc">}</span><span class="t-tag">&gt;</span>
+      <span class="t-punc">{</span>label<span class="t-punc">}</span>
+    <span class="t-tag">&lt;/li&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-info">
+          <strong>&#128218; Image Loading in Vite</strong>
+          Vite handles asset imports automatically. The import returns the final
+          URL path after hashing. For images in <span class="ic">public/</span>,
+          use a direct string path: <span class="ic">src="/logo.png"</span>.
+        </div>
+
+        <div class="card card-warn">
+          <strong>&#9888; Common Pitfall</strong>
+          Never use <span class="ic">src={'./image.png'}</span> with a relative
+          string path — the bundler won't process it. Either
+          <strong>import</strong> the file or put it in
+          <span class="ic">public/</span>.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-08-dynamic-attributes-and-better-image-asset-loading.jpg"
+            alt="Dynamic Attributes and Image Loading"
+          />
+          <div class="figure-caption">
+            Fig 5.1 — Dynamic attribute values and proper image asset loading
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 6 — Component Reusability & Props
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 06</span>
+        <h2>Component Reusability &amp; Props</h2>
+
+        <p>
+          <strong>Props</strong> (properties) are the mechanism for passing data
+          <em>from parent to child</em>. They make components configurable and
+          reusable — a single <span class="ic">Card</span> component can render
+          different content depending on the props it receives.
+        </p>
+
+        <h3>Declaring &amp; Using Props</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Reusable component accepting props</span>
+<span class="t-kw">function</span> <span class="t-comp">UserCard</span><span class="t-punc">({</span> name, role, avatar <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"user-card"</span><span class="t-tag">&gt;</span>
+      <span class="t-tag">&lt;img</span> <span class="t-attr">src</span><span class="t-op">=</span><span class="t-punc">{</span>avatar<span class="t-punc">}</span> <span class="t-attr">alt</span><span class="t-op">=</span><span class="t-punc">{</span>name<span class="t-punc">}</span> <span class="t-tag">/&gt;</span>
+      <span class="t-tag">&lt;h3&gt;</span><span class="t-punc">{</span>name<span class="t-punc">}</span><span class="t-tag">&lt;/h3&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span><span class="t-punc">{</span>role<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// Using it with different data</span>
+<span class="t-kw">function</span> <span class="t-comp">App</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;UserCard</span>
+        <span class="t-attr">name</span><span class="t-op">=</span><span class="t-str">"Alice"</span>
+        <span class="t-attr">role</span><span class="t-op">=</span><span class="t-str">"Engineer"</span>
+        <span class="t-attr">avatar</span><span class="t-op">=</span><span class="t-str">"/alice.jpg"</span>
+      <span class="t-tag">/&gt;</span>
+      <span class="t-tag">&lt;UserCard</span>
+        <span class="t-attr">name</span><span class="t-op">=</span><span class="t-str">"Bob"</span>
+        <span class="t-attr">role</span><span class="t-op">=</span><span class="t-str">"Designer"</span>
+        <span class="t-attr">avatar</span><span class="t-op">=</span><span class="t-str">"/bob.jpg"</span>
+      <span class="t-tag">/&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Default Props &amp; Destructuring</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Default values via destructuring</span>
+<span class="t-kw">function</span> <span class="t-comp">Button</span><span class="t-punc">({</span> label <span class="t-op">=</span> <span class="t-str">'Click'</span>, variant <span class="t-op">=</span> <span class="t-str">'primary'</span> <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-tag">&lt;button</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-punc">{</span><span class="t-str">`btn btn-${variant}`</span><span class="t-punc">}</span><span class="t-tag">&gt;</span><span class="t-punc">{</span>label<span class="t-punc">}</span><span class="t-tag">&lt;/button&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Destructure props in the function signature — it's cleaner, documents
+          the component's API, and enables default values.
+        </div>
+
+        <div class="card card-danger">
+          <strong>&#128293; Important</strong>
+          Props are <strong>read-only</strong>. A child component must never
+          modify props received from its parent. If you need mutable data, use
+          <strong>state</strong> (covered in Chapter 12).
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-09-cmp-reusability-props.jpg"
+            alt="Component Reusability & Props"
+          />
+          <div class="figure-caption">
+            Fig 6.1 — Props enable component reusability across your application
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 7 — Project Structure & Separate Files
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 07</span>
+        <h2>Project Structure &amp; Separate Files</h2>
+
+        <p>
+          As your app grows, putting every component in
+          <span class="ic">App.jsx</span> becomes unmanageable. Moving
+          components into their own files improves organization, enables reuse
+          across projects, and makes team collaboration easier.
+        </p>
+
+        <h3>Recommended Folder Structure</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">text</span>
+          </div>
+          <pre><code>src/
+├── components/
+│   ├── Header/
+│   │   ├── Header.jsx
+│   │   └── Header.css
+│   ├── CoreConcept/
+│   │   └── CoreConcept.jsx
+│   └── TabButton/
+│       └── TabButton.jsx
+├── assets/
+│   └── react-core-concepts.png
+├── App.jsx
+└── App.css</code></pre>
+        </div>
+
+        <h3>Exporting &amp; Importing</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Header.jsx — default export</span>
+<span class="t-kw">export default</span> <span class="t-kw">function</span> <span class="t-comp">Header</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-tag">&lt;header&gt;</span>…<span class="t-tag">&lt;/header&gt;</span>;
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// App.jsx — importing the component</span>
+<span class="t-kw">import</span> Header <span class="t-kw">from</span> <span class="t-str">'./components/Header/Header'</span>;
+
+<span class="t-kw">function</span> <span class="t-comp">App</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-tag">&lt;Header</span> <span class="t-tag">/&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Use <strong>named exports</strong> for utilities and
+          <strong>default exports</strong> for components. One component per
+          file. Co-locate related CSS and tests with the component.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-11-best-practice-project-structure-cmp-in-separate-files.jpg"
+            alt="Project Structure and Separate Files"
+          />
+          <div class="figure-caption">
+            Fig 7.1 — Best practice project structure with components in
+            separate files
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 8 — The children Prop
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 08</span>
+        <h2>The <span class="ic">children</span> Prop</h2>
+
+        <p>
+          <span class="ic">children</span> is a special built-in prop that React
+          automatically passes to every component. It represents
+          <strong
+            >whatever you place between the opening and closing tags</strong
+          >
+          of a component — making it the primary mechanism for
+          <em>composition</em>.
+        </p>
+
+        <h3>Why children?</h3>
+        <ul>
+          <li>
+            Creates <strong>wrapper / layout</strong> components (cards, modals,
+            sections)
+          </li>
+          <li>
+            Makes components <strong>flexible</strong> — they don't need to know
+            what content they'll contain
+          </li>
+          <li>
+            Follows the <strong>composition pattern</strong> instead of prop
+            drilling
+          </li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// A generic Card wrapper using children</span>
+<span class="t-kw">function</span> <span class="t-comp">Card</span><span class="t-punc">({</span> children <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"card"</span><span class="t-tag">&gt;</span>
+      <span class="t-punc">{</span>children<span class="t-punc">}</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// Using it with different inner content</span>
+<span class="t-tag">&lt;Card&gt;</span>
+  <span class="t-tag">&lt;h2&gt;</span>Title<span class="t-tag">&lt;/h2&gt;</span>
+  <span class="t-tag">&lt;p&gt;</span>Description text<span class="t-tag">&lt;/p&gt;</span>
+<span class="t-tag">&lt;/Card&gt;</span>
+
+<span class="t-tag">&lt;Card&gt;</span>
+  <span class="t-tag">&lt;img</span> <span class="t-attr">src</span><span class="t-op">=</span><span class="t-str">"hero.jpg"</span> <span class="t-attr">alt</span><span class="t-op">=</span><span class="t-str">"Hero"</span> <span class="t-tag">/&gt;</span>
+<span class="t-tag">&lt;/Card&gt;</span></code></pre>
+        </div>
+
+        <h3>Combining children with other props</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">Panel</span><span class="t-punc">({</span> title, children <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;section</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"panel"</span><span class="t-tag">&gt;</span>
+      <span class="t-tag">&lt;h2&gt;</span><span class="t-punc">{</span>title<span class="t-punc">}</span><span class="t-tag">&lt;/h2&gt;</span>
+      <span class="t-punc">{</span>children<span class="t-punc">}</span>
+    <span class="t-tag">&lt;/section&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// Usage</span>
+<span class="t-tag">&lt;Panel</span> <span class="t-attr">title</span><span class="t-op">=</span><span class="t-str">"Settings"</span><span class="t-tag">&gt;</span>
+  <span class="t-tag">&lt;SettingsForm</span> <span class="t-tag">/&gt;</span>
+<span class="t-tag">&lt;/Panel&gt;</span></code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Prefer <span class="ic">children</span> over passing JSX as a named
+          prop (e.g., <span class="ic">content={&lt;div/&gt;}</span>). It's more
+          idiomatic and easier to read.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-13-children-prop.jpg"
+            alt="The children Prop"
+          />
+          <div class="figure-caption">
+            Fig 8.1 — The children prop enables flexible composition patterns
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 9 — Reacting to Events
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 09</span>
+        <h2>Reacting to Events</h2>
+
+        <p>
+          React uses <strong>synthetic events</strong> — cross-browser wrappers
+          around native DOM events. You attach event handlers via camelCase
+          props like <span class="ic">onClick</span>,
+          <span class="ic">onChange</span>, <span class="ic">onSubmit</span>,
+          etc.
+        </p>
+
+        <h3>Basic Event Handling</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">Counter</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">function</span> <span class="t-fn">handleClick</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+    console.<span class="t-fn">log</span>(<span class="t-str">'Button clicked!'</span>);
+  <span class="t-punc">}</span>
+
+  <span class="t-kw">return</span> <span class="t-tag">&lt;button</span> <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{</span>handleClick<span class="t-punc">}</span><span class="t-tag">&gt;</span>Click<span class="t-tag">&lt;/button&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Accessing the Event Object</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">Form</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">function</span> <span class="t-fn">handleChange</span><span class="t-punc">(</span>event<span class="t-punc">)</span> <span class="t-punc">{</span>
+    console.<span class="t-fn">log</span>(event.target.value); <span class="t-cmt">// current input value</span>
+  <span class="t-punc">}</span>
+
+  <span class="t-kw">return</span> <span class="t-tag">&lt;input</span> <span class="t-attr">onChange</span><span class="t-op">=</span><span class="t-punc">{</span>handleChange<span class="t-punc">}</span> <span class="t-tag">/&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Common Events</h3>
+        <ul>
+          <li><span class="ic">onClick</span> — button/link clicks</li>
+          <li>
+            <span class="ic">onChange</span> — input/textarea value changes
+          </li>
+          <li><span class="ic">onSubmit</span> — form submission</li>
+          <li>
+            <span class="ic">onMouseEnter</span> /
+            <span class="ic">onMouseLeave</span> — hover effects
+          </li>
+          <li>
+            <span class="ic">onKeyDown</span> /
+            <span class="ic">onKeyUp</span> — keyboard input
+          </li>
+        </ul>
+
+        <div class="card card-danger">
+          <strong>&#128293; Common Pitfall</strong>
+          Do <strong>NOT</strong> call the handler immediately:
+          <span class="ic">onClick={handleClick()}</span> ❌. This executes the
+          function on render. Pass the <em>reference</em>:
+          <span class="ic">onClick={handleClick}</span> ✅.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-14-reacting-to-events.jpg"
+            alt="Reacting to Events"
+          />
+          <div class="figure-caption">
+            Fig 9.1 — React synthetic events and event handling patterns
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 10 — Passing Functions as Props
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 10</span>
+        <h2>Passing Functions as Props</h2>
+
+        <p>
+          Functions are first-class citizens in JavaScript, which means you can
+          pass them as props just like any other value. This pattern enables
+          <strong>child-to-parent communication</strong> — the child calls the
+          function, and the parent handles it.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Parent defines the handler</span>
+<span class="t-kw">function</span> <span class="t-comp">App</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">function</span> <span class="t-fn">handleTabChange</span><span class="t-punc">(</span>selectedTab<span class="t-punc">)</span> <span class="t-punc">{</span>
+    console.<span class="t-fn">log</span>(<span class="t-str">'Tab changed to:'</span>, selectedTab);
+  <span class="t-punc">}</span>
+
+  <span class="t-kw">return</span> <span class="t-tag">&lt;TabButton</span> <span class="t-attr">onSelect</span><span class="t-op">=</span><span class="t-punc">{</span>handleTabChange<span class="t-punc">}</span> <span class="t-tag">/&gt;</span>;
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// Child receives and calls the function</span>
+<span class="t-kw">function</span> <span class="t-comp">TabButton</span><span class="t-punc">({</span> onSelect <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;button</span> <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">onSelect</span>(<span class="t-str">'details'</span>)<span class="t-punc">}</span><span class="t-tag">&gt;</span>
+      Details
+    <span class="t-tag">&lt;/button&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-info">
+          <strong>&#128218; How It Works</strong>
+          The parent defines the function and passes it down via a prop. The
+          child <strong>invokes</strong> the function at the right time (e.g.,
+          on click). This allows the child to communicate events upward without
+          knowing the implementation.
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Name function props descriptively: <span class="ic">onSelect</span>,
+          <span class="ic">onDelete</span>, <span class="ic">onToggle</span>.
+          This follows the convention and makes the component's API
+          self-documenting.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-15-passing-functions-as-values-to-custom-components.jpg"
+            alt="Passing Functions as Props"
+          />
+          <div class="figure-caption">
+            Fig 10.1 — Passing functions as prop values for child-to-parent
+            communication
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 11 — Custom Parameters to Handlers
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 11</span>
+        <h2>Adding Custom Parameters to Handlers</h2>
+
+        <p>
+          Often you need to pass <strong>extra data</strong> to an event handler
+          beyond just the event object. There are several patterns for this,
+          each with different tradeoffs.
+        </p>
+
+        <h3>Pattern 1: Arrow Function Wrapper</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">ProductList</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">function</span> <span class="t-fn">handleSelect</span><span class="t-punc">(</span>id<span class="t-punc">)</span> <span class="t-punc">{</span>
+    console.<span class="t-fn">log</span>(<span class="t-str">'Selected:'</span>, id);
+  <span class="t-punc">}</span>
+
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;ul&gt;</span>
+      <span class="t-tag">&lt;li</span> <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">handleSelect</span>(<span class="t-num">1</span>)<span class="t-punc">}</span><span class="t-tag">&gt;</span>Product A<span class="t-tag">&lt;/li&gt;</span>
+      <span class="t-tag">&lt;li</span> <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">handleSelect</span>(<span class="t-num">2</span>)<span class="t-punc">}</span><span class="t-tag">&gt;</span>Product B<span class="t-tag">&lt;/li&gt;</span>
+    <span class="t-tag">&lt;/ul&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Pattern 2: data-* Attributes</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-fn">handleClick</span><span class="t-punc">(</span>event<span class="t-punc">)</span> <span class="t-punc">{</span>
+  <span class="t-kw">const</span> id <span class="t-op">=</span> event.target.dataset.id;
+  console.<span class="t-fn">log</span>(<span class="t-str">'Selected:'</span>, id);
+<span class="t-punc">}</span>
+
+<span class="t-tag">&lt;button</span> <span class="t-attr">data-id</span><span class="t-op">=</span><span class="t-str">"42"</span> <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{</span>handleClick<span class="t-punc">}</span><span class="t-tag">&gt;</span>Select<span class="t-tag">&lt;/button&gt;</span></code></pre>
+        </div>
+
+        <h3>Pattern 3: via Props (Preferred for Custom Components)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-tag">&lt;TabButton</span>
+  <span class="t-attr">label</span><span class="t-op">=</span><span class="t-str">"Details"</span>
+  <span class="t-attr">onSelect</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">handleSelect</span>(<span class="t-str">'details'</span>)<span class="t-punc">}</span>
+<span class="t-tag">/&gt;</span></code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          For custom components, pass the handler <em>already bound</em> with
+          its parameter from the parent. For native elements, use arrow wrappers
+          or <span class="ic">data-*</span> attributes.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-16-adding-custom-parameters-to-functions.jpg"
+            alt="Adding Custom Parameters to Handlers"
+          />
+          <div class="figure-caption">
+            Fig 11.1 — Strategies for passing custom parameters to event
+            handlers
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 12 — Managing State with useState
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 12</span>
+        <h2>Managing State with <span class="ic">useState</span></h2>
+
+        <p>
+          <span class="ic">useState</span> is the most fundamental React Hook.
+          It lets you add <strong>state</strong> — data that changes over time
+          and triggers a re-render when updated — to functional components.
+        </p>
+
+        <h3>Syntax</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">import</span> <span class="t-punc">{</span> useState <span class="t-punc">}</span> <span class="t-kw">from</span> <span class="t-str">'react'</span>;
+
+<span class="t-kw">function</span> <span class="t-comp">Counter</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-cmt">// [currentValue, setterFunction] = useState(initialValue)</span>
+  <span class="t-kw">const</span> [count, setCount] <span class="t-op">=</span> <span class="t-hook">useState</span>(<span class="t-num">0</span>);
+
+  <span class="t-kw">function</span> <span class="t-fn">increment</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+    <span class="t-fn">setCount</span>(count <span class="t-op">+</span> <span class="t-num">1</span>);
+  <span class="t-punc">}</span>
+
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span>Count: <span class="t-punc">{</span>count<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+      <span class="t-tag">&lt;button</span> <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{</span>increment<span class="t-punc">}</span><span class="t-tag">&gt;</span>+1<span class="t-tag">&lt;/button&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>State with Objects</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">const</span> [user, setUser] <span class="t-op">=</span> <span class="t-hook">useState</span>(<span class="t-punc">{</span> name<span class="t-punc">:</span> <span class="t-str">'Alice'</span>, age<span class="t-punc">:</span> <span class="t-num">25</span> <span class="t-punc">});</span>
+
+<span class="t-cmt">// Update: spread existing, then override</span>
+<span class="t-fn">setUser</span>(<span class="t-punc">{</span> ...user, age<span class="t-punc">:</span> <span class="t-num">26</span> <span class="t-punc">});</span></code></pre>
+        </div>
+
+        <h3>Functional Updates</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// When new state depends on previous state,</span>
+<span class="t-cmt">// use the functional update form to avoid stale closures:</span>
+<span class="t-fn">setCount</span>(<span class="t-punc">(</span>prevCount<span class="t-punc">)</span> <span class="t-op">=&gt;</span> prevCount <span class="t-op">+</span> <span class="t-num">1</span>);</code></pre>
+        </div>
+
+        <div class="card card-danger">
+          <strong>&#128293; Common Pitfall</strong>
+          State updates are <strong>asynchronous</strong> — you can't read the
+          new value immediately after <span class="ic">setState</span>. Also,
+          React <strong>merges state updates</strong> and may batch them. Use
+          functional updates when the next value depends on the current one.
+        </div>
+
+        <div class="card card-warn">
+          <strong>&#9888; Object State Gotcha</strong>
+          Unlike <span class="ic">this.setState</span> in class components,
+          <span class="ic">useState</span> <strong>replaces</strong> the entire
+          state value — it does NOT merge. Always spread the old object:
+          <span class="ic">{...old, key: newVal}</span>.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-18-managing-state-and-using-hooks.jpg"
+            alt="Managing State and Using Hooks"
+          />
+          <div class="figure-caption">
+            Fig 12.1 — useState hook and state management fundamentals
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 13 — Deriving Data from State
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 13</span>
+        <h2>Deriving &amp; Outputting Data Based on State</h2>
+
+        <p>
+          Not every piece of data needs its own state. When a value can be
+          <strong>computed from existing state</strong>, derive it instead of
+          storing it separately. This eliminates sync bugs and reduces
+          complexity.
+        </p>
+
+        <h3>Bad: Redundant State</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// ❌ Don't store derived values in state</span>
+<span class="t-kw">const</span> [items, setItems] <span class="t-op">=</span> <span class="t-hook">useState</span>([<span class="t-str">'A'</span>, <span class="t-str">'B'</span>, <span class="t-str">'C'</span>]);
+<span class="t-kw">const</span> [itemCount, setItemCount] <span class="t-op">=</span> <span class="t-hook">useState</span>(<span class="t-num">3</span>); <span class="t-cmt">// redundant!</span></code></pre>
+        </div>
+
+        <h3>Good: Derive from State</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// ✅ Derive the count — always in sync</span>
+<span class="t-kw">const</span> [items, setItems] <span class="t-op">=</span> <span class="t-hook">useState</span>([<span class="t-str">'A'</span>, <span class="t-str">'B'</span>, <span class="t-str">'C'</span>]);
+<span class="t-kw">const</span> itemCount <span class="t-op">=</span> items.length; <span class="t-cmt">// derived!</span>
+
+<span class="t-cmt">// More examples of derived data</span>
+<span class="t-kw">const</span> [price, setPrice] <span class="t-op">=</span> <span class="t-hook">useState</span>(<span class="t-num">100</span>);
+<span class="t-kw">const</span> [quantity, setQuantity] <span class="t-op">=</span> <span class="t-hook">useState</span>(<span class="t-num">2</span>);
+<span class="t-kw">const</span> total <span class="t-op">=</span> price <span class="t-op">*</span> quantity; <span class="t-cmt">// derived</span>
+
+<span class="t-kw">const</span> [todos, setTodos] <span class="t-op">=</span> <span class="t-hook">useState</span>([...]);
+<span class="t-kw">const</span> completedCount <span class="t-op">=</span> todos.<span class="t-fn">filter</span>(t <span class="t-op">=&gt;</span> t.done).length;</code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Ask yourself: "Can this value be computed from existing state?" If
+          yes, <strong>derive it</strong>. Only use
+          <span class="ic">useState</span> for values that change independently
+          or come from user input / async data.
+        </div>
+
+        <div class="card card-info">
+          <strong>&#128218; Performance Note</strong>
+          For expensive computations, wrap them in
+          <span class="ic">useMemo</span>. But for simple derivations like
+          <span class="ic">.length</span> or arithmetic, direct computation is
+          fine — React is fast enough.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-19-deriving-and-outputting-data-based-on-state.jpg"
+            alt="Deriving Data from State"
+          />
+          <div class="figure-caption">
+            Fig 13.1 — Deriving values from state instead of creating redundant
+            state
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 14 — Conditional Rendering
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 14</span>
+        <h2>Rendering Content Conditionally</h2>
+
+        <p>
+          React doesn't have built-in directives like
+          <span class="ic">v-if</span> or <span class="ic">ngIf</span>. Instead,
+          you use <strong>plain JavaScript</strong> — ternary operators, logical
+          AND, and early returns — to conditionally render elements.
+        </p>
+
+        <h3>Method 1: Ternary Operator</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">Alert</span><span class="t-punc">({</span> message <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-punc">{</span>message <span class="t-op">?</span> <span class="t-tag">&lt;p</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-str">"alert"</span><span class="t-tag">&gt;</span><span class="t-punc">{</span>message<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span> <span class="t-op">:</span> <span class="t-kw">null</span><span class="t-punc">}</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Method 2: Logical AND (&&)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Renders the element only if condition is truthy</span>
+<span class="t-kw">function</span> <span class="t-comp">Profile</span><span class="t-punc">({</span> user <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div&gt;</span>
+      <span class="t-tag">&lt;h2&gt;</span><span class="t-punc">{</span>user.name<span class="t-punc">}</span><span class="t-tag">&lt;/h2&gt;</span>
+      <span class="t-punc">{</span>user.isAdmin <span class="t-op">&amp;&amp;</span> <span class="t-tag">&lt;badge&gt;</span>Admin<span class="t-tag">&lt;/badge&gt;</span><span class="t-punc">}</span>
+      <span class="t-punc">{</span>user.email <span class="t-op">&amp;&amp;</span> <span class="t-tag">&lt;p&gt;</span><span class="t-punc">{</span>user.email<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span><span class="t-punc">}</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Method 3: Early Return</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">UserDetails</span><span class="t-punc">({</span> user <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">if</span> (!user) <span class="t-kw">return</span> <span class="t-tag">&lt;p&gt;</span>Loading…<span class="t-tag">&lt;/p&gt;</span>;
+
+  <span class="t-kw">return</span> <span class="t-tag">&lt;div&gt;</span>…<span class="t-tag">&lt;/div&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Method 4: Variable Assignment</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">TabContent</span><span class="t-punc">({</span> activeTab <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">let</span> content <span class="t-op">=</span> <span class="t-tag">&lt;p&gt;</span>Please select a tab.<span class="t-tag">&lt;/p&gt;</span>;
+
+  <span class="t-kw">if</span> (activeTab <span class="t-op">===</span> <span class="t-str">'details'</span>) {
+    content <span class="t-op">=</span> <span class="t-tag">&lt;DetailsPanel</span> <span class="t-tag">/&gt;</span>;
+  } <span class="t-kw">else if</span> (activeTab <span class="t-op">===</span> <span class="t-str">'settings'</span>) {
+    content <span class="t-op">=</span> <span class="t-tag">&lt;SettingsPanel</span> <span class="t-tag">/&gt;</span>;
+  }
+
+  <span class="t-kw">return</span> <span class="t-tag">&lt;div&gt;</span><span class="t-punc">{</span>content<span class="t-punc">}</span><span class="t-tag">&lt;/div&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-warn">
+          <strong>&#9888; Common Pitfall with &&</strong>
+          <span class="ic">{0 && &lt;div/&gt;}</span> renders
+          <strong>0</strong> on screen because 0 is falsy but a valid React
+          node. Use a ternary or explicit boolean:
+          <span class="ic">{count > 0 && &lt;div/&gt;}</span>.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-20-rendering-content-conditionally.jpg"
+            alt="Conditional Rendering"
+          />
+          <div class="figure-caption">
+            Fig 14.1 — Multiple patterns for conditional rendering in React
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 15 — CSS Styling & Dynamic Styling
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 15</span>
+        <h2>CSS Styling &amp; Dynamic Styling</h2>
+
+        <p>
+          React supports multiple styling approaches. Choosing the right one
+          depends on project size, team preference, and whether you need dynamic
+          styles.
+        </p>
+
+        <h3>1. Inline Styles</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Inline styles use camelCase properties and an object</span>
+<span class="t-tag">&lt;div</span> <span class="t-attr">style</span><span class="t-op">=</span><span class="t-punc">{{</span>
+  backgroundColor<span class="t-punc">:</span> <span class="t-str">'#1a1a2e'</span>,
+  padding<span class="t-punc">:</span> <span class="t-str">'20px'</span>,
+  borderRadius<span class="t-punc">:</span> <span class="t-str">'8px'</span>
+<span class="t-punc">}}</span><span class="t-tag">&gt;</span>
+  Content
+<span class="t-tag">&lt;/div&gt;</span></code></pre>
+        </div>
+
+        <h3>2. CSS Classes (Traditional)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Import a CSS file and use className</span>
+<span class="t-kw">import</span> <span class="t-str">'./Button.css'</span>;
+
+<span class="t-kw">function</span> <span class="t-comp">Button</span><span class="t-punc">({</span> variant <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-tag">&lt;button</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-punc">{</span><span class="t-str">`btn btn-${variant}`</span><span class="t-punc">}</span><span class="t-tag">&gt;</span>Click<span class="t-tag">&lt;/button&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>3. Dynamic className</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">Tab</span><span class="t-punc">({</span> isActive, children <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;button</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-punc">{</span>isActive <span class="t-op">?</span> <span class="t-str">'tab active'</span> <span class="t-op">:</span> <span class="t-str">'tab'</span><span class="t-punc">}</span><span class="t-tag">&gt;</span>
+      <span class="t-punc">{</span>children<span class="t-punc">}</span>
+    <span class="t-tag">&lt;/button&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>4. CSS Modules</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Button.module.css — scoped by default</span>
+<span class="t-kw">import</span> styles <span class="t-kw">from</span> <span class="t-str">'./Button.module.css'</span>;
+
+<span class="t-kw">function</span> <span class="t-comp">Button</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-tag">&lt;button</span> <span class="t-attr">className</span><span class="t-op">=</span><span class="t-punc">{</span>styles.primary<span class="t-punc">}</span><span class="t-tag">&gt;</span>Click<span class="t-tag">&lt;/button&gt;</span>;
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Best Practice</strong>
+          Use <strong>CSS classes</strong> for static styling,
+          <strong>inline styles</strong> for truly dynamic values (like
+          positioning from state), and <strong>CSS Modules</strong> or scoped
+          solutions for avoiding class name collisions.
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-21-css-styling-and-dynamic-styling.jpg"
+            alt="CSS Styling and Dynamic Styling"
+          />
+          <div class="figure-caption">
+            Fig 15.1 — Styling approaches and dynamic styling patterns in React
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 16 — Outputting Lists Dynamically
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 16</span>
+        <h2>Outputting Lists Dynamically</h2>
+
+        <p>
+          To render a list of items, use JavaScript's
+          <span class="ic">.map()</span> method to transform an array of data
+          into an array of JSX elements. This is the standard React pattern for
+          dynamic lists.
+        </p>
+
+        <h3>Basic List Rendering</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">function</span> <span class="t-comp">ConceptList</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">const</span> concepts <span class="t-op">=</span> [
+    { id<span class="t-punc">:</span> <span class="t-str">'cmp'</span>, title<span class="t-punc">:</span> <span class="t-str">'Components'</span>, desc<span class="t-punc">:</span> <span class="t-str">'UI building blocks'</span> },
+    { id<span class="t-punc">:</span> <span class="t-str">'jsx'</span>, title<span class="t-punc">:</span> <span class="t-str">'JSX'</span>, desc<span class="t-punc">:</span> <span class="t-str">'Declarative syntax'</span> },
+    { id<span class="t-punc">:</span> <span class="t-str">'props'</span>, title<span class="t-punc">:</span> <span class="t-str">'Props'</span>, desc<span class="t-punc">:</span> <span class="t-str">'Data passing'</span> },
+  ];
+
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;ul&gt;</span>
+      <span class="t-punc">{</span>concepts.<span class="t-fn">map</span>((concept) <span class="t-op">=&gt;</span> <span class="t-punc">(</span>
+        <span class="t-tag">&lt;li</span> <span class="t-attr">key</span><span class="t-op">=</span><span class="t-punc">{</span>concept.id<span class="t-punc">}</span><span class="t-tag">&gt;</span>
+          <span class="t-tag">&lt;h3&gt;</span><span class="t-punc">{</span>concept.title<span class="t-punc">}</span><span class="t-tag">&lt;/h3&gt;</span>
+          <span class="t-tag">&lt;p&gt;</span><span class="t-punc">{</span>concept.desc<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+        <span class="t-tag">&lt;/li&gt;</span>
+      <span class="t-punc">))}</span>
+    <span class="t-tag">&lt;/ul&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Extracting List Items as Components</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-cmt">// Reusable list item component</span>
+<span class="t-kw">function</span> <span class="t-comp">ConceptItem</span><span class="t-punc">({</span> title, description <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;li&gt;</span>
+      <span class="t-tag">&lt;h3&gt;</span><span class="t-punc">{</span>title<span class="t-punc">}</span><span class="t-tag">&lt;/h3&gt;</span>
+      <span class="t-tag">&lt;p&gt;</span><span class="t-punc">{</span>description<span class="t-punc">}</span><span class="t-tag">&lt;/p&gt;</span>
+    <span class="t-tag">&lt;/li&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span>
+
+<span class="t-cmt">// Parent maps data to components</span>
+<span class="t-punc">{</span>concepts.<span class="t-fn">map</span>((c) <span class="t-op">=&gt;</span> <span class="t-punc">(</span>
+  <span class="t-tag">&lt;ConceptItem</span>
+    <span class="t-attr">key</span><span class="t-op">=</span><span class="t-punc">{</span>c.id<span class="t-punc">}</span>
+    <span class="t-attr">title</span><span class="t-op">=</span><span class="t-punc">{</span>c.title<span class="t-punc">}</span>
+    <span class="t-attr">description</span><span class="t-op">=</span><span class="t-punc">{</span>c.desc<span class="t-punc">}</span>
+  <span class="t-tag">/&gt;</span>
+<span class="t-punc">))}</span></code></pre>
+        </div>
+
+        <div class="card card-danger">
+          <strong>&#128293; Critical: The key Prop</strong>
+          Every list item <strong>must</strong> have a unique
+          <span class="ic">key</span> prop. Keys help React identify which items
+          changed, added, or removed — enabling efficient re-renders.
+          <strong>Never use the array index as key</strong> if the list can be
+          reordered or items can be inserted/removed.
+        </div>
+
+        <div class="card card-warn">
+          <strong>&#9888; Common Pitfall</strong>
+          Using <span class="ic">index</span> as key can cause bugs with
+          controlled inputs, animations, and reordering. Use a stable unique
+          identifier from your data (e.g., <span class="ic">item.id</span>).
+        </div>
+
+        <div class="figure">
+          <img
+            src="./images/essentials-22-outputting-lists-dynamically.jpg"
+            alt="Outputting Lists Dynamically"
+          />
+          <div class="figure-caption">
+            Fig 16.1 — Rendering dynamic lists with .map() and the key prop
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 17 — Mini-Project: Interactive Tab Viewer
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 17</span>
+        <h2>Mini-Project: Interactive Tab Viewer</h2>
+
+        <p>
+          Let's combine everything we've learned — components, props, state,
+          events, conditional rendering, and dynamic styling — into a single
+          working mini-project: an <strong>Interactive Tab Viewer</strong>.
+        </p>
+
+        <h3>Project Overview</h3>
+        <p>
+          The app displays three tabs (Components, JSX, Props). Clicking a tab
+          reveals its description. The active tab is visually highlighted. All
+          logic lives in the parent; child components are pure and reusable.
+        </p>
+
+        <h3>Project Structure</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">text</span>
+          </div>
+          <pre><code>src/
+├── components/
+│   ├── TabButton.jsx
+│   └── TabContent.jsx
+├── App.jsx
+└── App.css</code></pre>
+        </div>
+
+        <h3>TabButton.jsx</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">export default function</span> <span class="t-comp">TabButton</span><span class="t-punc">({</span> children, isSelected, onSelect <span class="t-punc">})</span> <span class="t-punc">{</span>
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;li&gt;</span>
+      <span class="t-tag">&lt;button</span>
+        <span class="t-attr">className</span><span class="t-op">=</span><span class="t-punc">{</span>isSelected <span class="t-op">?</span> <span class="t-str">'active'</span> <span class="t-op">:</span> <span class="t-kw">undefined</span><span class="t-punc">}</span>
+        <span class="t-attr">onClick</span><span class="t-op">=</span><span class="t-punc">{</span>onSelect<span class="t-punc">}</span>
+      <span class="t-tag">&gt;</span>
+        <span class="t-punc">{</span>children<span class="t-punc">}</span>
+      <span class="t-tag">&lt;/button&gt;</span>
+    <span class="t-tag">&lt;/li&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>App.jsx</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">jsx</span>
+          </div>
+          <pre><code><span class="t-kw">import</span> <span class="t-punc">{</span> useState <span class="t-punc">}</span> <span class="t-kw">from</span> <span class="t-str">'react'</span>;
+<span class="t-kw">import</span> TabButton <span class="t-kw">from</span> <span class="t-str">'./components/TabButton'</span>;
+
+<span class="t-kw">const</span> TAB_DATA <span class="t-op">=</span> <span class="t-punc">{</span>
+  components<span class="t-punc">:</span> <span class="t-str">'Components are the building blocks…'</span>,
+  jsx<span class="t-punc">:</span> <span class="t-str">'JSX is a syntax extension for JS…'</span>,
+  props<span class="t-punc">:</span> <span class="t-str">'Props let you pass data from parent to child…'</span>,
+<span class="t-punc">};</span>
+
+<span class="t-kw">export default function</span> <span class="t-comp">App</span><span class="t-punc">()</span> <span class="t-punc">{</span>
+  <span class="t-kw">const</span> [selectedTopic, setSelectedTopic] <span class="t-op">=</span> <span class="t-hook">useState</span>(<span class="t-str">'components'</span>);
+
+  <span class="t-kw">function</span> <span class="t-fn">handleSelect</span><span class="t-punc">(</span>topic<span class="t-punc">)</span> <span class="t-punc">{</span>
+    <span class="t-fn">setSelectedTopic</span>(topic);
+  <span class="t-punc">}</span>
+
+  <span class="t-kw">return</span> <span class="t-punc">(</span>
+    <span class="t-tag">&lt;div</span> <span class="t-attr">id</span><span class="t-op">=</span><span class="t-str">"app"</span><span class="t-tag">&gt;</span>
+      <span class="t-tag">&lt;h1&gt;</span>React Essentials<span class="t-tag">&lt;/h1&gt;</span>
+      <span class="t-tag">&lt;menu&gt;</span>
+        <span class="t-tag">&lt;TabButton</span>
+          <span class="t-attr">isSelected</span><span class="t-op">=</span><span class="t-punc">{</span>selectedTopic <span class="t-op">===</span> <span class="t-str">'components'</span><span class="t-punc">}</span>
+          <span class="t-attr">onSelect</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">handleSelect</span>(<span class="t-str">'components'</span>)<span class="t-punc">}</span>
+        <span class="t-tag">&gt;</span>Components<span class="t-tag">&lt;/TabButton&gt;</span>
+        <span class="t-tag">&lt;TabButton</span>
+          <span class="t-attr">isSelected</span><span class="t-op">=</span><span class="t-punc">{</span>selectedTopic <span class="t-op">===</span> <span class="t-str">'jsx'</span><span class="t-punc">}</span>
+          <span class="t-attr">onSelect</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">handleSelect</span>(<span class="t-str">'jsx'</span>)<span class="t-punc">}</span>
+        <span class="t-tag">&gt;</span>JSX<span class="t-tag">&lt;/TabButton&gt;</span>
+        <span class="t-tag">&lt;TabButton</span>
+          <span class="t-attr">isSelected</span><span class="t-op">=</span><span class="t-punc">{</span>selectedTopic <span class="t-op">===</span> <span class="t-str">'props'</span><span class="t-punc">}</span>
+          <span class="t-attr">onSelect</span><span class="t-op">=</span><span class="t-punc">{()</span> <span class="t-op">=&gt;</span> <span class="t-fn">handleSelect</span>(<span class="t-str">'props'</span>)<span class="t-punc">}</span>
+        <span class="t-tag">&gt;</span>Props<span class="t-tag">&lt;/TabButton&gt;</span>
+      <span class="t-tag">&lt;/menu&gt;</span>
+      <span class="t-tag">&lt;div</span> <span class="t-attr">id</span><span class="t-op">=</span><span class="t-str">"tab-content"</span><span class="t-tag">&gt;</span>
+        <span class="t-punc">{</span>TAB_DATA[selectedTopic]<span class="t-punc">}</span>
+      <span class="t-tag">&lt;/div&gt;</span>
+    <span class="t-tag">&lt;/div&gt;</span>
+  <span class="t-punc">);</span>
+<span class="t-punc">}</span></code></pre>
+        </div>
+
+        <h3>Key Concepts Applied</h3>
+        <div class="project-card">
+          <h4>Techniques Used in This Project</h4>
+          <ul>
+            <li>
+              <span class="badge badge-new">Ch 06</span> Props —
+              <span class="ic">isSelected</span>,
+              <span class="ic">onSelect</span>, <span class="ic">children</span>
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 08</span> children prop — Tab
+              content passed between tags
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 09</span> Event handling —
+              <span class="ic">onClick</span> on buttons
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 10</span> Function props — parent
+              handler passed to child
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 11</span> Custom params —
+              <span class="ic">() =&gt; handleSelect('jsx')</span>
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 12</span> State —
+              <span class="ic">selectedTopic</span> managed with
+              <span class="ic">useState</span>
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 13</span> Derived data — content
+              looked up from <span class="ic">TAB_DATA</span>
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 14</span> Conditional class —
+              <span class="ic">isSelected ? 'active' : undefined</span>
+            </li>
+            <li>
+              <span class="badge badge-new">Ch 15</span> Dynamic styling —
+              active class toggled
+            </li>
+          </ul>
+        </div>
+
+        <div class="card card-tip">
+          <strong>&#128161; Extension Ideas</strong>
+          Add a fade-in animation on tab switch, load content dynamically with
+          <span class="ic">useEffect</span>, or add keyboard navigation with
+          <span class="ic">onKeyDown</span>.
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     CHAPTER 18 — Interview Q&A
+     ═══════════════════════════════════════════════════════ -->
+      <div class="chapter">
+        <span class="chapter-num">Chapter 18</span>
+        <h2>Interview Q&amp;A</h2>
+
+        <p>
+          Prepare for React interviews with these commonly asked questions
+          covering the essentials covered in this guide.
+        </p>
+
+        <div class="qa-item">
+          <div class="qa-q">Q1: What is React and why use it?</div>
+          <div class="qa-a">
+            React is a declarative, component-based JavaScript library for
+            building user interfaces. Key advantages: component reusability,
+            virtual DOM for efficient updates, unidirectional data flow for
+            predictability, and a vast ecosystem.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q2: What is JSX? How is it different from HTML?
+          </div>
+          <div class="qa-a">
+            JSX is a syntax extension that lets you write HTML-like markup in
+            JavaScript. Key differences:
+            <span class="ic">className</span> instead of
+            <span class="ic">class</span>,
+            <span class="ic">htmlFor</span> instead of
+            <span class="ic">for</span>, self-closing tags are required, inline
+            styles use camelCase objects, and expressions are embedded with
+            <span class="ic">{}</span>.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q3: What is the difference between props and state?
+          </div>
+          <div class="qa-a">
+            <strong>Props</strong> are read-only data passed from parent to
+            child — they cannot be modified by the child.
+            <strong>State</strong> is mutable data owned by the component
+            itself, managed with <span class="ic">useState</span> (or
+            <span class="ic">this.setState</span> in class components). State
+            changes trigger re-renders.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q4: Why must React component names start with an uppercase letter?
+          </div>
+          <div class="qa-a">
+            React treats lowercase tags as native HTML elements and PascalCase
+            tags as custom components. If you name a component with a lowercase
+            letter, React won't recognize it as a component and will try to
+            render it as an HTML element, resulting in an error.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q5: What is the virtual DOM?</div>
+          <div class="qa-a">
+            The virtual DOM is a lightweight JavaScript representation of the
+            real DOM. React renders components to the virtual DOM, then diffs it
+            against the previous version. Only the changed parts are updated in
+            the real DOM (reconciliation), making updates efficient.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q6: What is the <span class="ic">key</span> prop and why is it
+            important?
+          </div>
+          <div class="qa-a">
+            The <span class="ic">key</span> prop is a unique identifier for list
+            items. It helps React's reconciliation algorithm identify which
+            items changed, were added, or removed. Without proper keys, React
+            may incorrectly reuse DOM nodes, causing bugs with animations,
+            controlled inputs, and component state.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q7: How do you handle events in React?</div>
+          <div class="qa-a">
+            React uses synthetic events — cross-browser wrappers around native
+            events. Attach handlers with camelCase props like
+            <span class="ic">onClick</span>. Pass the function reference, not a
+            call: <span class="ic">onClick={handler}</span>, not
+            <span class="ic">onClick={handler()}</span>. Access the event object
+            as the first parameter of the handler.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q8: What is the <span class="ic">children</span> prop?
+          </div>
+          <div class="qa-a">
+            <span class="ic">children</span> is a special prop that React
+            automatically passes to every component. It represents the content
+            placed between the component's opening and closing tags. It's the
+            primary composition mechanism for creating wrapper/layout
+            components.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q9: Why shouldn't you store derived values in state?
+          </div>
+          <div class="qa-a">
+            Storing derived values in state creates redundancy and potential
+            sync bugs — if the source state changes but the derived state isn't
+            updated, they'll be out of sync. Instead, compute derived values
+            directly from existing state:
+            <span class="ic">const total = price * quantity;</span>. This
+            guarantees consistency.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q10: What are the different ways to conditionally render in React?
+          </div>
+          <div class="qa-a">
+            Four main patterns: (1) <strong>Ternary</strong> —
+            <span class="ic">{condition ? &lt;A/&gt; : &lt;B/&gt;}</span>; (2)
+            <strong>Logical AND</strong> —
+            <span class="ic">{condition &amp;&amp; &lt;A/&gt;}</span>; (3)
+            <strong>Early return</strong> —
+            <span class="ic">if (!data) return &lt;Loading/&gt;</span>; (4)
+            <strong>Variable assignment</strong> — set a variable and render it.
+            Choose based on complexity and readability.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q11: What happens if you call <span class="ic">setState</span> with
+            the same value?
+          </div>
+          <div class="qa-a">
+            If the new state value is the same as the current value (determined
+            by <span class="ic">Object.is</span> comparison), React bails out of
+            the re-render for optimization. This is important for performance —
+            unnecessary renders are skipped automatically.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q12: Can you pass a function as a prop? Why would you?
+          </div>
+          <div class="qa-a">
+            Yes — functions are first-class in JavaScript. Passing functions as
+            props enables <strong>child-to-parent communication</strong>. The
+            child invokes the function at the right time (e.g., on click), and
+            the parent handles it. This is the standard pattern for lifting
+            state up and keeping child components reusable.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q13: What is the difference between controlled and uncontrolled
+            components?
+          </div>
+          <div class="qa-a">
+            <strong>Controlled</strong> components have their value driven by
+            React state — <span class="ic">value={state}</span> +
+            <span class="ic">onChange</span>.
+            <strong>Uncontrolled</strong> components manage their own internal
+            DOM state, accessed via refs. Controlled components are preferred
+            for predictable behavior and validation.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q14: Why is <span class="ic">index</span> as a React key an
+            anti-pattern?
+          </div>
+          <div class="qa-a">
+            Using the array index as a key is problematic when the list can be
+            reordered, filtered, or have items inserted/removed. React uses keys
+            to match previous and new items. With index keys, item identity is
+            tied to position, causing React to incorrectly associate state with
+            wrong items. Use a stable unique ID from your data instead.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q15: How does React's one-directional data flow work?
+          </div>
+          <div class="qa-a">
+            Data flows <strong>down</strong> via props (parent → child). Events
+            flow <strong>up</strong> via callback functions passed as props.
+            This unidirectional flow makes data ownership clear, debugging
+            easier, and prevents the cascading updates that can occur in two-way
+            binding systems.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q16: What are React Hooks?</div>
+          <div class="qa-a">
+            Hooks are functions that let you "hook into" React features from
+            functional components. <span class="ic">useState</span> adds state,
+            <span class="ic">useEffect</span> adds side effects,
+            <span class="ic">useContext</span> accesses context,
+            <span class="ic">useRef</span> creates refs, etc. Hooks must be
+            called at the top level of a component — not inside loops,
+            conditions, or nested functions.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q17: What is the difference between default and named exports?
+          </div>
+          <div class="qa-a">
+            A module can have <strong>one default export</strong> (imported with
+            any name: <span class="ic">import MyComponent from './file'</span>)
+            and <strong>multiple named exports</strong> (imported with exact
+            name: <span class="ic">import { helper } from './file'</span>).
+            Convention: default export for the main component, named exports for
+            utilities.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">
+            Q18: How do you update object/array state without mutation?
+          </div>
+          <div class="qa-a">
+            Since React state must be updated immutably: for objects, use
+            spread: <span class="ic">setState({...old, key: newVal})</span>. For
+            arrays, use spread or array methods that return new arrays:
+            <span class="ic">setState([...old, newItem])</span>,
+            <span class="ic">setState(old.filter(...))</span>,
+            <span class="ic">setState(old.map(...))</span>. Never mutate
+            directly: <span class="ic">state.push()</span> ❌.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q19: What is reconciliation in React?</div>
+          <div class="qa-a">
+            Reconciliation is the process by which React compares the new
+            virtual DOM tree with the previous one and determines the minimum
+            set of changes needed to update the real DOM. It uses a diffing
+            algorithm with key assumptions: elements of different types produce
+            different trees, and the developer can hint at element stability
+            with <span class="ic">key</span> props.
+          </div>
+        </div>
+
+        <div class="qa-item">
+          <div class="qa-q">Q20: What are the rules of Hooks?</div>
+          <div class="qa-a">
+            Two rules: (1) <strong>Only call Hooks at the top level</strong> —
+            never inside loops, conditions, or nested functions. This ensures
+            hooks are called in the same order every render. (2)
+            <strong
+              >Only call Hooks from React function components or custom
+              Hooks</strong
+            >
+            — not from regular JavaScript functions. Use
+            <span class="ic">eslint-plugin-react-hooks</span> to enforce these
+            rules.
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════ -->
+      <div class="divider"></div>
+      <div
+        style="
+          text-align: center;
+          padding: 20px 0 10px;
+          color: var(--muted);
+          font-size: 12px;
+        "
+      >
+        <p>React Essentials Guide &mdash; Dark Premium Edition</p>
+        <p style="margin-top: 4px; color: var(--border)">
+          Comprehensive coverage of components, JSX, props, state, events,
+          styling, lists, and interview preparation.
+        </p>
+      </div>
+    </div>
+    <!-- end .content -->
+  </body>
+</html>
