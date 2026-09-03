@@ -1,0 +1,3343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>React Deep Dive — Advanced Patterns for Production-Ready Components</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+@page {
+    size: 720px 1020px;
+    margin: 0;
+}
+
+:root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-2: #1c2330;
+    --accent: #58a6ff;
+    --accent-2: #f78166;
+    --accent-3: #7ee787;
+    --accent-4: #d2a8ff;
+    --text: #e6edf3;
+    --text-dim: #c9d1d9;
+    --muted: #8b949e;
+    --border: #30363d;
+    --code-bg: #0d1117;
+    --kw: #ff7b72;
+    --str: #a5d6ff;
+    --cmt: #8b949e;
+    --fn: #d2a8ff;
+    --num: #79c0ff;
+    --op: #ff7b72;
+    --tag: #7ee787;
+    --attr: #79c0ff;
+    --prop: #ffa657;
+    --punct: #c9d1d9;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 720px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+@media screen {
+    html {
+        height: auto;
+        display: flex;
+        justify-content: center;
+        background: #222;
+    }
+    body {
+        transform-origin: top center;
+        margin: 20px auto;
+        box-shadow: 0 10px 60px rgba(0,0,0,0.6);
+    }
+}
+
+/* =========================================================
+   COVER PAGE
+   ========================================================= */
+.cover {
+    width: 720px;
+    height: 1020px;
+    box-sizing: border-box;
+    break-after: page;
+    overflow: hidden;
+    position: relative;
+    background:
+        radial-gradient(ellipse at top right, rgba(88, 166, 255, 0.12), transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(247, 129, 102, 0.10), transparent 55%),
+        linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+    padding: 70px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--text);
+}
+
+.cover-deco-1 {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(88,166,255,0.18), transparent 70%);
+    pointer-events: none;
+}
+.cover-deco-2 {
+    position: absolute;
+    bottom: -30px;
+    left: -30px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(247,129,102,0.15), transparent 70%);
+    pointer-events: none;
+}
+.cover-deco-3 {
+    display: none;
+}
+
+.cover-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    padding: 6px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+}
+
+.cover-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--text);
+    margin: 0 0 44px 0;
+    letter-spacing: -1.5px;
+}
+
+.cover-title .accent {
+    color: var(--accent);
+    font-style: italic;
+}
+
+.cover-subtitle {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--text-dim);
+    margin: 0 0 52px 0;
+    max-width: 540px;
+}
+
+.cover-divider {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    margin: 0 0 44px 0;
+    border-radius: 2px;
+}
+
+.cover-meta {
+    display: flex;
+    gap: 40px;
+    margin-top: 56px;
+}
+
+.cover-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cover-meta-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.cover-meta-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.cover-footer {
+    position: absolute;
+    bottom: 50px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.cover-footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: rgba(22, 27, 34, 0.6);
+}
+
+.cover-footer-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-3);
+    box-shadow: 0 0 8px var(--accent-3);
+}
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+.main-content {
+    padding: 55px 60px 40px 60px;
+}
+
+/* Chapter part divider */
+.part-divider {
+    break-before: page;
+    break-inside: avoid;
+    margin-top: 0;
+    margin-bottom: 28px;
+    padding: 24px 0;
+    border-top: 2px solid var(--accent);
+    border-bottom: 1px solid var(--border);
+}
+
+.part-divider-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.part-divider-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Chapter header */
+.chapter-header {
+    break-after: avoid;
+    break-inside: avoid;
+    margin-top: 28px;
+    margin-bottom: 18px;
+}
+.chapter-header:first-child {
+    margin-top: 0;
+}
+
+.chapter-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chapter-tag::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+}
+
+.chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 22px 0;
+    line-height: 1.2;
+    letter-spacing: -0.4px;
+}
+
+.chapter-divider {
+    display: none;
+}
+
+/* Body text */
+.body-text {
+    margin: 0 0 14px 0;
+    color: var(--text-dim);
+    text-align: left;
+    font-size: 13.5px;
+    line-height: 1.7;
+}
+
+.body-text strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.body-text code {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    background: var(--surface-2);
+    color: var(--accent-3);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+}
+
+/* H3 sub-headings */
+.h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 22px 0 10px 0;
+    break-after: avoid;
+    line-height: 1.3;
+}
+
+.h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 16px 0 8px 0;
+    break-after: avoid;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Callout boxes */
+.callout {
+    break-inside: avoid;
+    margin: 14px 0;
+    padding: 14px 18px;
+    border-left: 3px solid var(--accent);
+    background: rgba(88, 166, 255, 0.06);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-dim);
+}
+
+.callout-title {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.callout.warn {
+    border-left-color: var(--accent-2);
+    background: rgba(247, 129, 102, 0.06);
+}
+.callout.warn .callout-title {
+    color: var(--accent-2);
+}
+
+.callout.success {
+    border-left-color: var(--accent-3);
+    background: rgba(126, 231, 135, 0.06);
+}
+.callout.success .callout-title {
+    color: var(--accent-3);
+}
+
+.callout.tip {
+    border-left-color: var(--accent-4);
+    background: rgba(210, 168, 255, 0.06);
+}
+.callout.tip .callout-title {
+    color: var(--accent-4);
+}
+
+/* Code blocks — VS Code Dark+ style */
+.code-block {
+    break-inside: avoid;
+    margin: 14px 0;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.code-dots {
+    display: inline-flex;
+    gap: 5px;
+    margin-right: 10px;
+}
+.code-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ff5f56;
+}
+.code-dot:nth-child(2) { background: #ffbd2e; }
+.code-dot:nth-child(3) { background: #27c93f; }
+
+.code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+}
+
+.code-content {
+    padding: 12px 14px;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+}
+
+.code-content .kw { color: var(--kw); }       /* keyword: const, return, import, function */
+.code-content .str { color: var(--str); }     /* string */
+.code-content .cmt { color: var(--cmt); font-style: italic; } /* comment */
+.code-content .fn { color: var(--fn); }       /* function name */
+.code-content .num { color: var(--num); }     /* number */
+.code-content .op { color: var(--op); }       /* operator */
+.code-content .tag { color: var(--tag); }     /* JSX tag */
+.code-content .attr { color: var(--attr); }   /* JSX attribute */
+.code-content .prop { color: var(--prop); }   /* object property */
+.code-content .punct { color: var(--punct); } /* punctuation */
+
+/* Inline list */
+ul.body-list {
+    margin: 8px 0 14px 0;
+    padding-left: 0;
+    list-style: none;
+    color: var(--text-dim);
+}
+ul.body-list li {
+    padding: 4px 0 4px 22px;
+    position: relative;
+    line-height: 1.65;
+}
+ul.body-list li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 13px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+/* Numbered list */
+ol.body-num {
+    margin: 8px 0 14px 0;
+    padding-left: 22px;
+    color: var(--text-dim);
+}
+ol.body-num li {
+    padding: 4px 0;
+    line-height: 1.65;
+}
+ol.body-num li::marker {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Reference figure */
+.figure {
+    break-inside: avoid;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--surface);
+}
+.figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.figure-caption {
+    padding: 8px 14px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* Two-column comparison */
+.compare {
+    break-inside: avoid;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+}
+.compare-cell {
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+}
+.compare-cell.bad { border-color: rgba(247,129,102,0.4); background: rgba(247,129,102,0.04); }
+.compare-cell.good { border-color: rgba(126,231,135,0.4); background: rgba(126,231,135,0.04); }
+
+.compare-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.compare-cell.bad .compare-label { color: var(--accent-2); }
+.compare-cell.good .compare-label { color: var(--accent-3); }
+
+/* Table */
+.tbl {
+    break-inside: avoid;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.tbl th, .tbl td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+}
+.tbl th {
+    background: var(--surface-2);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl td code {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-3);
+    font-size: 11px;
+}
+
+/* Interview Q&A */
+.qa-item {
+    break-inside: avoid;
+    margin: 16px 0;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+}
+.qa-question {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 13px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+.qa-question::before {
+    content: 'Q: ';
+    color: var(--accent-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+.qa-answer {
+    color: var(--text-dim);
+    font-size: 12.5px;
+    line-height: 1.65;
+}
+.qa-answer::before {
+    content: 'A: ';
+    color: var(--accent-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+
+/* Ending page */
+.ending {
+    width: 720px;
+    height: 1020px;
+    box-sizing: border-box;
+    break-before: page;
+    overflow: hidden;
+    position: relative;
+    background:
+        radial-gradient(ellipse at top left, rgba(126, 231, 135, 0.10), transparent 60%),
+        radial-gradient(ellipse at bottom right, rgba(88, 166, 255, 0.10), transparent 55%),
+        linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+    padding: 70px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.ending-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent-3);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+.ending-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--text);
+    margin: 0 0 24px 0;
+    line-height: 1.1;
+    letter-spacing: -1px;
+}
+
+.ending-text {
+    font-size: 16px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 0 36px 0;
+}
+
+.ending-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-3));
+    margin: 28px 0 40px 0;
+}
+
+.ending-checklist {
+    text-align: left;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+}
+.ending-checklist-item {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.5;
+}
+.ending-checklist-item::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    color: var(--accent-3);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.ending-footer {
+    position: absolute;
+    bottom: 50px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     COVER PAGE
+     ============================================================ -->
+<div class="cover">
+    <div class="cover-deco-1"></div>
+    <div class="cover-deco-2"></div>
+    <div class="cover-deco-3"></div>
+
+    <div class="cover-tag">Vol. 02 · Deep Dive Edition</div>
+
+    <h1 class="cover-title">React <span class="accent">Deep Dive</span></h1>
+
+    <div class="cover-divider"></div>
+
+    <p class="cover-subtitle">
+        Advanced patterns for production-ready components — prop forwarding, slot composition,
+        dynamic wrappers, immutable state, lifting state up, and deriving state for cleaner,
+        faster, more maintainable React applications.
+    </p>
+
+    <div class="cover-meta">
+        <div class="cover-meta-item">
+            <div class="cover-meta-label">Chapters</div>
+            <div class="cover-meta-value">20</div>
+        </div>
+        <div class="cover-meta-item">
+            <div class="cover-meta-label">Topics</div>
+            <div class="cover-meta-value">18 + Capstone</div>
+        </div>
+        <div class="cover-meta-item">
+            <div class="cover-meta-label">Level</div>
+            <div class="cover-meta-value">Beginner → Pro</div>
+        </div>
+        <div class="cover-meta-item">
+            <div class="cover-meta-label">Format</div>
+            <div class="cover-meta-value">Theory + Code + Q&amp;A</div>
+        </div>
+    </div>
+
+    <div class="cover-footer">
+        <div class="cover-footer-badge">
+            <span class="dot"></span>
+            <span>Production-Ready Patterns</span>
+        </div>
+        <div>React 18+ · Hooks · Modern JSX</div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<div class="main-content">
+
+<!-- ============================================================
+     INTRODUCTION
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Introduction</div>
+    <h2 class="chapter-title">Beyond the Basics — Why a Deep Dive Matters</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<p class="body-text">
+    The first volume of this series taught you the building blocks of React: components, props,
+    state, events, and lists. You learned how to compose UIs from small pieces and how to keep
+    data and the screen in sync. That foundation is enough to ship a working app — but it is not
+    enough to ship a <strong>maintainable</strong> one. As soon as your component tree grows past
+    a handful of files, you start hitting questions that the basics do not answer.
+</p>
+
+<p class="body-text">
+    Should this state live in the child that displays it, or in the parent that owns the data flow?
+    Why does the input box lose focus, or why does the same click handler fire with stale data?
+    When two siblings need the same data, who owns it? Should you store a derived value, or compute
+    it on every render? Why does wrapping a list in a <code>&lt;div&gt;</code> break your CSS grid
+    layout? These are not edge cases — they are the everyday questions that separate a React
+    beginner from a React engineer.
+</p>
+
+<p class="body-text">
+    This deep-dive volume answers those questions by walking through 18 production-grade patterns
+    that experienced React developers reach for daily. Each chapter takes one specific problem,
+    explains the underlying mechanism, shows the wrong way (and why it fails), and then shows the
+    right way with code you can paste into your project. The chapters are grouped into four
+    thematic parts so you can read sequentially or jump to the pattern you need right now.
+</p>
+
+<div class="callout">
+    <div class="callout-title">How to read this guide</div>
+    Each chapter is self-contained. The <strong>Theory</strong> section explains the "why",
+    the <strong>Code</strong> sections show the "how", the <strong>Pitfalls</strong> section
+    warns you about bugs that took the industry years to learn, and the <strong>Real Project</strong>
+    section ties the pattern to a concrete use case. The final two chapters walk through a
+    complete Tic-Tac-Toe capstone and a 20-question interview prep section.
+</div>
+
+<h3 class="h3">What you will be able to build after this guide</h3>
+<p class="body-text">
+    By the end of this volume you will be able to design flexible wrapper components that forward
+    arbitrary props, build reusable layout primitives with multiple named slots, dynamically
+    switch the HTML element a component renders, manage complex nested state immutably, share
+    state across distant siblings without prop-drilling pain, and — most importantly — recognise
+    when you are storing state you should be deriving instead. These are the patterns that turn
+    a 3000-line <code>App.js</code> into a clean, testable, and reusable component tree.
+</p>
+
+<!-- ============================================================
+     PART 1 — JSX & COMPONENT COMPOSITION
+     ============================================================ -->
+<div class="part-divider">
+    <div class="part-divider-tag">Part I</div>
+    <h2 class="part-divider-title">JSX &amp; Component Composition</h2>
+</div>
+
+<p class="body-text">
+    The first part of this guide focuses on the mechanics of <strong>writing</strong> components —
+    how JSX constrains you, how to split a giant component into focused pieces, and how to build
+    wrapper primitives that feel as natural as native HTML elements. Master these patterns first,
+    because every advanced state-management topic in Parts III and IV assumes you can compose
+    components cleanly.
+</p>
+
+<!-- ============================================================
+     CHAPTER 1 — JSX One-Root Rule & React Fragments
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 01 · Slide 03</div>
+    <h2 class="chapter-title">JSX One-Root Rule &amp; React Fragments</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The one-parent constraint</h3>
+<p class="body-text">
+    JSX looks like HTML, but it is syntactic sugar over the <code>React.createElement()</code>
+    function call. A function in JavaScript can only return one value, so a JSX expression can
+    only return one root element. The following looks innocent and HTML-like, but it is invalid
+    JSX:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Invalid.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">BadComponent</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;h1&gt;</span>Title<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Subtitle<span class="tag">&lt;/p&gt;</span>          <span class="cmt">// ❌ Syntax error: adjacent JSX elements</span>
+  );
+}</div>
+</div>
+
+<p class="body-text">
+    The compiler tries to translate this into <code>return createElement('h1', ...) createElement('p', ...)</code>
+    — which is two function calls with no wrapper, and JavaScript parses this as a syntax error.
+    You have two ways to satisfy the one-root rule, and they have very different consequences for
+    your DOM tree.
+</p>
+
+<h3 class="h3">Option A — Wrap in a real DOM element</h3>
+<p class="body-text">
+    The naive fix is to wrap the siblings in a <code>&lt;div&gt;</code> or <code>&lt;section&gt;</code>.
+    This compiles and renders fine, but it adds an <strong>extra node</strong> to the DOM tree.
+    That extra node is invisible to your React code but very visible to your CSS: it breaks
+    <code>display: flex</code> parents (the wrapper becomes a flex item instead of its children),
+    it breaks <code>:nth-child</code> selectors, it breaks CSS Grid layout flows, and it inflates
+    the document size for no benefit.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">WrapperDiv.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">WithDiv</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>                                  <span class="cmt">// +1 DOM node (often unwanted)</span>
+      <span class="tag">&lt;h1&gt;</span>Title<span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Subtitle<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Option B — Wrap in a React Fragment</h3>
+<p class="body-text">
+    A React Fragment is a special invisible node that groups children for JSX purposes but emits
+    <strong>no DOM node</strong>. The DOM tree stays clean — the <code>&lt;h1&gt;</code> and
+    <code>&lt;p&gt;</code> become direct children of whatever parent renders this component, exactly
+    as if the wrapper did not exist. There are two syntaxes for fragments:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Fragment.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="cmt">// Shorthand — modern, preferred (no import needed)</span>
+<span class="kw">function</span> <span class="fn">ShortFragment</span>() {
+  <span class="kw">return</span> (
+    &lt;&gt;
+      <span class="tag">&lt;h1&gt;</span>Title<span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Subtitle<span class="tag">&lt;/p&gt;</span>
+    &lt;/&gt;
+  );
+}
+
+<span class="cmt">// Explicit — needed when you must pass a `key` to a list of fragments</span>
+<span class="kw">import</span> { <span class="prop">Fragment</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">ExplicitFragment</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;Fragment&gt;</span>
+      <span class="tag">&lt;h1&gt;</span>Title<span class="tag">&lt;/h1&gt;</span>
+      <span class="tag">&lt;p&gt;</span>Subtitle<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/Fragment&gt;</span>
+  );
+}</div>
+</div>
+
+<div class="callout warn">
+    <div class="callout-title">Pitfall — shorthand fragments cannot take props</div>
+    The <code>&lt;&gt;...&lt;/&gt;</code> shorthand accepts <strong>no attributes</strong>. If you
+    are rendering a list of fragments (e.g. inside <code>.map()</code>) you must pass a
+    <code>key</code> — and you can only do that with the explicit
+    <code>&lt;Fragment key={...}&gt;</code> form. The shorthand will throw a syntax error.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-03-jsx-limitation-one-parent-element-react-fragment.jpg" alt="JSX one-parent rule and React Fragment diagram">
+    <div class="figure-caption">Fig 1.1 — JSX must return one root; Fragments let you group siblings without adding DOM nodes.</div>
+</div>
+
+<h3 class="h3">Real project: a list of definitions</h3>
+<p class="body-text">
+    A common case where fragments shine: rendering a definition list where each entry produces
+    a <code>&lt;dt&gt;</code> and a <code>&lt;dd&gt;</code>. These must be direct children of
+    <code>&lt;dl&gt;</code>; wrapping each pair in a <code>&lt;div&gt;</code> is invalid HTML
+    and breaks screen readers. Fragments save the day:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">DefinitionList.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">DefinitionList</span>({ terms }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;dl&gt;</span>
+      {terms.<span class="fn">map</span>(([term, def]) =&gt; (
+        <span class="tag">&lt;Fragment</span> <span class="attr">key</span>={term}<span class="tag">&gt;</span>
+          <span class="tag">&lt;dt&gt;</span>{term}<span class="tag">&lt;/dt&gt;</span>
+          <span class="tag">&lt;dd&gt;</span>{def}<span class="tag">&lt;/dd&gt;</span>
+        <span class="tag">&lt;/Fragment&gt;</span>
+      ))}
+    <span class="tag">&lt;/dl&gt;</span>
+  );
+}</div>
+</div>
+
+<div class="callout tip">
+    <div class="callout-title">Rule of thumb</div>
+    Reach for a Fragment by default. Only use a real <code>&lt;div&gt;</code> when you genuinely
+    need a styling or layout wrapper. If you catch yourself writing <code>&lt;div className="wrapper"&gt;</code>
+    just to satisfy JSX, replace it with <code>&lt;&gt;</code>.
+</div>
+
+<!-- ============================================================
+     CHAPTER 2 — Identifying Component Split-Up Potential
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 02 · Slide 04</div>
+    <h2 class="chapter-title">Identifying Component Split-Up Potential</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">When should you split a component?</h3>
+<p class="body-text">
+    Beginners tend to write one giant <code>App</code> component that handles data, state, events,
+    and rendering for the entire screen. It works, but it does not scale. As the component grows,
+    every state update re-runs the entire render function — including the parts that have nothing
+    to do with the data that changed. Worse, the file becomes impossible to navigate, hard to
+    test, and resistant to reuse.
+</p>
+
+<p class="body-text">
+    The single-responsibility principle from software engineering applies cleanly to React: a
+    component should do <strong>one thing</strong>. If you can describe what a component does
+    in one short sentence and that sentence contains the word "and", you have a split candidate.
+    "Renders the header and the player list and the chat input" is three components pretending to
+    be one.
+</p>
+
+<h3 class="h3">Four signals that a component needs splitting</h3>
+
+<ol class="body-num">
+    <li><strong>Multiple distinct visual sections.</strong> A page that has a header, a sidebar,
+    a main panel, and a footer is four components, not one. Each section can be reasoned about,
+    styled, and tested independently.</li>
+    <li><strong>Unrelated state living together.</strong> If your component holds the chat input
+    text and the game board state in the same <code>useState</code> cluster, those two concerns
+    want to live in different components.</li>
+    <li><strong>A render function longer than ~80 lines.</strong> This is a heuristic, not a rule,
+    but it correlates strongly with "doing too much". Long render functions are hard to scan, hard
+    to test, and re-render unnecessarily often.</li>
+    <li><strong>Repeated JSX blocks.</strong> If you find yourself copying and pasting a card
+    markup block, that block wants to be its own component. Reuse beats repetition.</li>
+</ol>
+
+<h3 class="h3">Keep state close to where it is used</h3>
+<p class="body-text">
+    A common mistake after splitting is leaving all state in the parent "because that's where it
+    was before". This defeats the purpose. State should live in the <strong>lowest common
+    ancestor</strong> of all components that need it — no higher. If only the chat input needs
+    the draft text, the chat input owns it. If the board and the log both need the move list, the
+    shared parent owns it. Misplaced state causes unrelated sections to update on every keystroke.
+</p>
+
+<div class="callout warn">
+    <div class="callout-title">Pitfall — re-render cascade from misplaced state</div>
+    When state lives too high in the tree, every state change re-renders the parent and
+    <strong>every child below it</strong>, even children that do not use the changed data. With
+    ten children this is a performance tax; with a hundred it is a freeze. The fix is almost
+    always "push the state down to where it belongs".
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-04-identifying-component-split-up-potential.jpg" alt="Identifying component split-up potential diagram">
+    <div class="figure-caption">Fig 2.1 — Split, place, and inspect: the three-step cycle for component decomposition.</div>
+</div>
+
+<h3 class="h3">A worked example: from one App to four components</h3>
+<p class="body-text">
+    Imagine a typical dashboard page. The monolithic version is one 200-line component that
+    manages the user's name, the active tab, the data fetching, and the modal visibility. After
+    applying the split-up pattern, the structure becomes:
+</p>
+
+<table class="tbl">
+    <thead>
+        <tr><th>Component</th><th>Responsibility</th><th>Owns state?</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>&lt;App&gt;</code></td><td>Layout, routing</td><td>active tab only</td></tr>
+        <tr><td><code>&lt;Header&gt;</code></td><td>User info, logout button</td><td>none (props)</td></tr>
+        <tr><td><code>&lt;Sidebar&gt;</code></td><td>Navigation</td><td>none (props)</td></tr>
+        <tr><td><code>&lt;DashboardPanel&gt;</code></td><td>Charts, data fetching</td><td>data, loading, error</td></tr>
+        <tr><td><code>&lt;SettingsModal&gt;</code></td><td>Form, validation</td><td>form fields</td></tr>
+    </tbody>
+</table>
+
+<p class="body-text">
+    Each component now fits on a single screen, has a clear purpose, and only re-renders when its
+    own state (or its direct props) changes. The <code>SettingsModal</code> can re-render on every
+    keystroke without forcing the charts to refetch — that is the entire point of the split.
+</p>
+
+<!-- ============================================================
+     CHAPTER 3 — Splitting Components by Feature and State
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 03 · Slide 05</div>
+    <h2 class="chapter-title">Splitting Components by Feature and State</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">A five-step recipe for decomposition</h3>
+<p class="body-text">
+    Once you have identified that a component is too big (Chapter 2), you need a deterministic
+    process for splitting it. The Academind tutorial this guide accompanies teaches a five-step
+    recipe that works for almost any monolithic component. The key idea is to split
+    <strong>by feature</strong> (a logical slice of the UI), not by layer (all state in one file,
+    all markup in another). Feature-based splits keep related code together so you can change a
+    feature without touching ten files.
+</p>
+
+<h4 class="h4">Step 1 — Extract distinct UI sections</h4>
+<p class="body-text">
+    Look at your render output and identify the visually distinct sections: header, sidebar,
+    main panel, footer, list, form. Each one becomes its own component file. At this step you
+    only move JSX — no logic yet. The goal is a 1-to-1 mapping between visual sections and
+    files.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx — before</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;header&gt;</span>...header markup...<span class="tag">&lt;/header&gt;</span>
+      <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"concepts"</span><span class="tag">&gt;</span>...concepts markup...<span class="tag">&lt;/section&gt;</span>
+      <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"examples"</span><span class="tag">&gt;</span>...examples markup...<span class="tag">&lt;/section&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx — after step 1</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> <span class="prop">Header</span> <span class="kw">from</span> <span class="str">'./components/Header'</span>;
+<span class="kw">import</span> <span class="prop">CoreConcepts</span> <span class="kw">from</span> <span class="str">'./components/CoreConcepts'</span>;
+<span class="kw">import</span> <span class="prop">Examples</span> <span class="kw">from</span> <span class="str">'./components/Examples'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;Header</span> /<span class="tag">&gt;</span>
+      <span class="tag">&lt;CoreConcepts</span> /<span class="tag">&gt;</span>
+      <span class="tag">&lt;Examples</span> /<span class="tag">&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<h4 class="h4">Step 2 — Import only what each feature needs</h4>
+<p class="body-text">
+    Move data imports and child component imports into the file that actually uses them. If
+    <code>CoreConcepts</code> needs the <code>CORE_CONCEPTS</code> array, that import belongs in
+    <code>CoreConcepts.jsx</code> — not in <code>App.jsx</code>. The result is that each file
+    declares its own dependencies explicitly, which makes the dependency graph easy to reason
+    about and tree-shake.
+</p>
+
+<h4 class="h4">Step 3 — Move state and handlers into the feature component</h4>
+<p class="body-text">
+    This is the step most beginners skip, and it is the one that matters most. After extracting
+    the JSX, the <code>useState</code> and the event handlers that were sitting in
+    <code>App.jsx</code> usually belong inside the new feature component. If the
+    <code>Examples</code> component is the only place that uses the <code>selectedTopic</code>
+    state, move the state there. The litmus test: "if I deleted every other component, would this
+    state still need to exist?" If yes, it stays in App. If no, push it down.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Examples.jsx — after step 3</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> { <span class="prop">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> <span class="prop">TabButton</span> <span class="kw">from</span> <span class="str">'./TabButton'</span>;
+
+<span class="kw">function</span> <span class="fn">Examples</span>() {
+  <span class="kw">const</span> [selectedTopic, setSelectedTopic] = <span class="fn">useState</span>(<span class="str">'components'</span>);
+
+  <span class="kw">function</span> <span class="fn">handleSelect</span>(selectedButton) {
+    <span class="fn">setSelectedTopic</span>(selectedButton);
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"examples"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;menu&gt;</span>
+        <span class="tag">&lt;TabButton</span> <span class="attr">onSelect</span>={() =&gt; <span class="fn">handleSelect</span>(<span class="str">'components'</span>)}<span class="tag">&gt;</span>Components<span class="tag">&lt;/TabButton&gt;</span>
+        <span class="tag">&lt;TabButton</span> <span class="attr">onSelect</span>={() =&gt; <span class="fn">handleSelect</span>(<span class="str">'jsx'</span>)}<span class="tag">&gt;</span>JSX<span class="tag">&lt;/TabButton&gt;</span>
+      <span class="tag">&lt;/menu&gt;</span>
+      {<span class="cmt">/* render based on selectedTopic */</span>}
+    <span class="tag">&lt;/section&gt;</span>
+  );
+}</div>
+</div>
+
+<h4 class="h4">Step 4 — Keep App lean</h4>
+<p class="body-text">
+    After steps 1–3, your <code>App.jsx</code> should be a thin shell that imports the feature
+    components and renders them in a layout. Any logic that no longer has a home in App belongs
+    in one of the children. Delete the dead code — do not leave commented-out remnants "just in
+    case". Version control remembers everything.
+</p>
+
+<h4 class="h4">Step 5 — Verify that state updates only re-render the owner</h4>
+<p class="body-text">
+    Once state has been pushed down, switching tabs in <code>Examples</code> should not re-render
+    <code>Header</code> or <code>CoreConcepts</code>. You can confirm this with the React DevTools
+    Profiler: record a session, trigger a state change, and look at which components flash. Only
+    the component that owns the state (and its children) should flash. If unrelated components
+    flash, the state is still too high.
+</p>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-05-splitting-components-by-feature-and-state.jpg" alt="Five-step recipe for splitting components by feature">
+    <div class="figure-caption">Fig 3.1 — The five-step split: extract, import, move state, lean App, verify re-render scope.</div>
+</div>
+
+<div class="callout success">
+    <div class="callout-title">Why this matters in real projects</div>
+    Feature-based splitting is the foundation of every large React codebase. Next.js, Remix,
+    and the React Server Components model all assume this structure. When you join a company
+    that uses React, you will navigate hundreds of small files, each owning one feature. The
+    five-step recipe in this chapter is exactly how those codebases are organised.
+</div>
+
+<!-- ============================================================
+     CHAPTER 4 — Forwarding Props with Rest/Spread
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 04 · Slide 07</div>
+    <h2 class="chapter-title">Forwarding Props with Rest &amp; Spread</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The problem with explicit prop pass-through</h3>
+<p class="body-text">
+    Imagine you are building a <code>&lt;Button&gt;</code> component that wraps a native
+    <code>&lt;button&gt;</code>. You want callers to be able to pass <code>onClick</code>,
+    <code>disabled</code>, <code>className</code>, <code>aria-label</code>, <code>id</code>,
+    <code>data-testid</code>, and any of the dozens of other attributes a button supports. The
+    naive approach is to declare each prop explicitly and forward it one at a time. This works for
+    three props. It collapses under its own weight at ten.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Naive.jsx — does not scale</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="cmt">// Every new attribute = one new prop + one new pass-through line</span>
+<span class="kw">function</span> <span class="fn">Button</span>({ onClick, disabled, className, id, ariaLabel, type, children }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;button</span>
+      <span class="attr">onClick</span>={onClick}
+      <span class="attr">disabled</span>={disabled}
+      <span class="attr">className</span>={className}
+      <span class="attr">id</span>={id}
+      <span class="attr">aria-label</span>={ariaLabel}
+      <span class="attr">type</span>={type}
+    <span class="tag">&gt;</span>
+      {children}
+    <span class="tag">&lt;/button&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Rest + Spread: the transparent wrapper pattern</h3>
+<p class="body-text">
+    JavaScript's rest and spread operators solve this elegantly. <strong>Rest</strong> collects
+    leftover props into a single object using <code>...props</code> in the parameter list.
+    <strong>Spread</strong> then expands that object back onto the target element using
+    <code>{...props}</code> in JSX. The wrapper becomes a transparent pipe: anything the caller
+    passes that the wrapper does not explicitly consume gets forwarded to the underlying DOM
+    element automatically.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Button.jsx — scalable</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="cmt">// `children` is destructured (used by the wrapper itself)</span>
+<span class="cmt">// `...rest` collects EVERY other prop into one object</span>
+<span class="kw">function</span> <span class="fn">Button</span>({ children, ...rest }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;button</span> <span class="attr">className</span>=<span class="str">"btn"</span> {...rest}<span class="tag">&gt;</span>
+      {children}
+    <span class="tag">&lt;/button&gt;</span>
+  );
+}
+
+<span class="cmt">// Now any native button attribute just works:</span>
+<span class="tag">&lt;Button</span> <span class="attr">onClick</span>={handleClick} <span class="attr">disabled</span>={isSaving} <span class="attr">aria-label</span>=<span class="str">"Save"</span><span class="tag">&gt;</span>
+  Save
+<span class="tag">&lt;/Button&gt;</span></div>
+</div>
+
+<h3 class="h3">Why prefer native prop names</h3>
+<p class="body-text">
+    A common temptation is to invent custom prop names like <code>onSelect</code> for a tab
+    button instead of using the native <code>onClick</code>. Resist this. When your component
+    accepts native prop names, callers do not need to learn a new API — they already know how
+    to pass <code>onClick</code>, <code>disabled</code>, and <code>aria-label</code> from their
+    HTML knowledge. Custom names force every consumer to read your documentation.
+</p>
+
+<div class="compare">
+    <div class="compare-cell bad">
+        <div class="compare-label">Avoid — custom aliases</div>
+        <code>&lt;TabButton onSelect={() =&gt; ...}&gt;<br>&nbsp;&nbsp;Topic<br>&lt;/TabButton&gt;</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">Caller must learn a new API per component.</p>
+    </div>
+    <div class="compare-cell good">
+        <div class="compare-label">Prefer — native names</div>
+        <code>&lt;TabButton onClick={() =&gt; ...}&gt;<br>&nbsp;&nbsp;Topic<br>&lt;/TabButton&gt;</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">Caller reuses DOM knowledge; works with rest/spread.</p>
+    </div>
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-07-forwarding-props.jpg" alt="Forwarding props with rest and spread pattern">
+    <div class="figure-caption">Fig 4.1 — Rest collects leftover props; spread applies them to the native element.</div>
+</div>
+
+<div class="callout tip">
+    <div class="callout-title">Pattern name</div>
+    This is sometimes called the <strong>"transparent wrapper"</strong> or
+    <strong>"passthrough props"</strong> pattern. You will see it everywhere in production
+    component libraries — MUI, Chakra UI, Radix UI, and shadcn/ui all use rest/spread for
+    their primitive components.
+</div>
+
+<!-- ============================================================
+     CHAPTER 5 — Multiple Slots via children & Named Props
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 05 · Slide 08</div>
+    <h2 class="chapter-title">Multiple Slots — children &amp; Named Props</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">Why one slot is not enough</h3>
+<p class="body-text">
+    The <code>children</code> prop is React's built-in mechanism for "whatever you nest between
+    the opening and closing tag". It is perfect for simple wrappers like a Card or a Button.
+    But many UI patterns need <strong>multiple insertion points</strong>. A tabs component needs
+    a slot for the menu and a separate slot for the content. A dialog needs slots for header,
+    body, and footer. A layout needs slots for sidebar and main.
+</p>
+
+<p class="body-text">
+    The trick is that <strong>any prop can hold JSX</strong>, not just <code>children</code>.
+    If you accept a prop called <code>menu</code> and render it with <code>{menu}</code>, the
+    caller can pass arbitrary JSX into that slot. This is the "named slots" pattern, borrowed
+    from Web Components and Vue.
+</p>
+
+<h3 class="h3">Building a Tabs component with two slots</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Tabs.jsx — the wrapper</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Tabs</span>({ buttons, children }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;menu&gt;</span>{buttons}<span class="tag">&lt;/menu&gt;</span>     <span class="cmt">// named slot: buttons</span>
+      {children}                              <span class="cmt">// default slot: children</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx — the caller</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="tag">&lt;Tabs</span>
+  <span class="attr">buttons</span>={
+    <span class="tag">&lt;&gt;</span>
+      <span class="tag">&lt;TabButton&gt;</span>Tab 1<span class="tag">&lt;/TabButton&gt;</span>
+      <span class="tag">&lt;TabButton&gt;</span>Tab 2<span class="tag">&lt;/TabButton&gt;</span>
+    <span class="tag">&lt;/&gt;</span>
+  }
+<span class="tag">&gt;</span>
+  <span class="tag">&lt;div&gt;</span>Content for the active tab goes here<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/Tabs&gt;</span></div>
+</div>
+
+<h3 class="h3">Separate structure from behaviour</h3>
+<p class="body-text">
+    Notice that the <code>Tabs</code> wrapper above has no state. It does not know which tab is
+    active, it does not handle clicks, and it does not switch content. Its only job is to enforce
+    the layout — menu above, content below. The parent component owns the active-tab state and
+    the click handlers. This separation is what makes the wrapper reusable: the same
+    <code>&lt;Tabs&gt;</code> component can be used for a tabbed settings panel, a tabbed code
+    editor, or a tabbed product page, because none of the tab-specific logic lives inside it.
+</p>
+
+<div class="callout">
+    <div class="callout-title">Design principle</div>
+    <strong>Wrapper components should be dumb.</strong> They enforce structure and styling; they
+    should not own behaviour. The parent owns the state and passes JSX into the slots. If you
+    find yourself adding <code>useState</code> to a wrapper, ask whether that state really
+    belongs there or in the caller.
+</div>
+
+<h3 class="h3">Scaling to more than two slots</h3>
+<p class="body-text">
+    The named-slot pattern scales to any number of slots. A dialog might accept
+    <code>header</code>, <code>body</code>, and <code>footer</code> props. A page layout might
+    accept <code>sidebar</code>, <code>main</code>, and <code>toolbar</code>. The rule of thumb:
+    once you have more than three slots, consider whether the wrapper is doing too much, or
+    whether nested wrappers would be clearer.
+</p>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-08-setting-multiple-slots-for-jsx-code-on-components.jpg" alt="Multiple slots for JSX on components">
+    <div class="figure-caption">Fig 5.1 — Two slots: <code>buttons</code> for the menu, <code>children</code> for the content.</div>
+</div>
+
+<!-- ============================================================
+     CHAPTER 6 — Choosing Component Types Dynamically
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 06 · Slide 09</div>
+    <h2 class="chapter-title">Choosing Component Types Dynamically</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The flexibility problem</h3>
+<p class="body-text">
+    Sometimes you want a wrapper component to render <em>different</em> HTML elements depending
+    on context. A button group might render as a <code>&lt;div&gt;</code> in a toolbar, a
+    <code>&lt;menu&gt;</code> in a navigation bar, or a <code>&lt;ul&gt;</code> in a sidebar.
+    Hard-coding the element inside the wrapper forces the caller to choose between "one component
+    per element type" (boilerplate) or "always a div" (semantically wrong).
+</p>
+
+<h3 class="h3">The dynamic wrapper prop pattern</h3>
+<p class="body-text">
+    The fix is to let the caller pass the wrapper element as a prop. The trick is that React
+    treats lowercase strings (<code>"div"</code>) as native HTML tags and capitalized identifiers
+    (<code>Section</code>) as custom components. So you can write:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">ButtonGroup.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="cmt">// Accept a `buttonsContainer` prop (lowercase)</span>
+<span class="cmt">// Remap to a capitalized local variable so JSX treats it as a component</span>
+<span class="kw">function</span> <span class="fn">ButtonGroup</span>({ buttonsContainer = <span class="str">'menu'</span>, children }) {
+  <span class="kw">const</span> ButtonsContainer = buttonsContainer;   <span class="cmt">// capitalise!</span>
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ButtonsContainer&gt;</span>
+      {children}
+    <span class="tag">&lt;/ButtonsContainer&gt;</span>
+  );
+}
+
+<span class="cmt">// Usage — caller chooses the wrapper element:</span>
+<span class="tag">&lt;ButtonGroup</span> <span class="attr">buttonsContainer</span>=<span class="str">"menu"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/ButtonGroup&gt;</span>     <span class="cmt">// native &lt;menu&gt;</span>
+<span class="tag">&lt;ButtonGroup</span> <span class="attr">buttonsContainer</span>=<span class="str">"ul"</span><span class="tag">&gt;</span>...<span class="tag">&lt;/ButtonGroup&gt;</span>        <span class="cmt">// native &lt;ul&gt;</span>
+<span class="tag">&lt;ButtonGroup</span> <span class="attr">buttonsContainer</span>={Section}<span class="tag">&gt;</span>...<span class="tag">&lt;/ButtonGroup&gt;</span>  <span class="cmt">// custom component</span></div>
+</div>
+
+<div class="callout warn">
+    <div class="callout-title">The capitalization gotcha — read this twice</div>
+    JSX decides between "native HTML tag" and "custom component" by the <strong>case of the
+    first letter</strong> at <em>compile time</em>. <code>&lt;menu&gt;</code> is HTML.
+    <code>&lt;Menu&gt;</code> is a component. <code>&lt;Section /&gt;</code> would not work
+    if the receiving variable were lowercase. That is why we reassign to a capitalized local
+    (<code>const ButtonsContainer = buttonsContainer</code>) before using it in JSX. Skip this
+    step and React will try to render <code>&lt;buttonsContainer&gt;</code> as a custom HTML
+    tag, which silently renders nothing.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-09-choosing-component-types-dynamically.jpg" alt="Choosing component types dynamically via wrapper prop">
+    <div class="figure-caption">Fig 6.1 — A single wrapper prop produces different shells: native HTML or custom components.</div>
+</div>
+
+<h3 class="h3">Real project: polymorphic Button</h3>
+<p class="body-text">
+    A common production pattern is a polymorphic <code>Button</code> that can render as a
+    <code>&lt;button&gt;</code>, an <code>&lt;a&gt;</code>, or a Next.js <code>&lt;Link&gt;</code>
+    depending on whether the action is a click handler, an external link, or a client-side
+    navigation. The same dynamic-wrapper technique handles all three:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">PolymorphicButton.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Button</span>({ as = <span class="str">'button'</span>, ...rest }) {
+  <span class="kw">const</span> Component = as;
+  <span class="kw">return</span> <span class="tag">&lt;Component</span> <span class="attr">className</span>=<span class="str">"btn"</span> {...rest} /<span class="tag">&gt;</span>;
+}
+
+<span class="cmt">// Native button (default)</span>
+<span class="tag">&lt;Button</span> <span class="attr">onClick</span>={save}<span class="tag">&gt;</span>Save<span class="tag">&lt;/Button&gt;</span>
+
+<span class="cmt">// External link</span>
+<span class="tag">&lt;Button</span> <span class="attr">as</span>=<span class="str">"a"</span> <span class="attr">href</span>=<span class="str">"https://example.com"</span><span class="tag">&gt;</span>Visit<span class="tag">&lt;/Button&gt;</span>
+
+<span class="cmt">// Next.js client-side navigation</span>
+<span class="tag">&lt;Button</span> <span class="attr">as</span>={Link} <span class="attr">href</span>=<span class="str">"/dashboard"</span><span class="tag">&gt;</span>Dashboard<span class="tag">&lt;/Button&gt;</span></div>
+</div>
+
+<!-- ============================================================
+     CHAPTER 7 — Default Prop Values
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 07 · Slide 10</div>
+    <h2 class="chapter-title">Default Prop Values via Destructuring</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">Why defaults matter</h3>
+<p class="body-text">
+    A reusable component is only as reusable as its defaults are sensible. If callers must pass
+    every prop every time, the API is exhausting to use. Defaults let the caller specify only
+    what they want to override, while the component fills in the rest with reasonable choices.
+    The previous chapter already showed defaults in passing (<code>as = 'button'</code>); this
+    chapter formalises the pattern.
+</p>
+
+<h3 class="h3">Destructuring defaults — the modern way</h3>
+<p class="body-text">
+    The idiomatic React way to set a default is with JavaScript's destructuring default syntax
+    in the function parameter list. If the caller omits the prop (or passes <code>undefined</code>),
+    the default kicks in. If the caller passes a value, that value wins.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Card.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Card</span>({
+  title,                                   <span class="cmt">// required — no default</span>
+  as = <span class="str">'section'</span>,                       <span class="cmt">// default: 'section'</span>
+  padding = <span class="num">16</span>,                          <span class="cmt">// default: 16 (number)</span>
+  shadow = <span class="kw">true</span>,                          <span class="cmt">// default: true (boolean)</span>
+  onClick,                                 <span class="cmt">// optional — undefined by default</span>
+  children,
+}) {
+  <span class="kw">const</span> Component = as;
+  <span class="kw">return</span> (
+    <span class="tag">&lt;Component</span>
+      <span class="attr">className</span>={<span class="str">`card ${shadow ? <span class="str">'shadow'</span> : <span class="str">''</span>}`</span>}
+      <span class="attr">style</span>={{ <span class="attr">padding</span>: <span class="str">`${padding}px`</span> }}
+      <span class="attr">onClick</span>={onClick}
+    <span class="tag">&gt;</span>
+      {title &amp;&amp; <span class="tag">&lt;h2&gt;</span>{title}<span class="tag">&lt;/h2&gt;</span>}
+      {children}
+    <span class="tag">&lt;/Component&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Defaults work for any JavaScript value</h3>
+<p class="body-text">
+    The destructuring default is not limited to primitives. You can default to a string
+    (<code>'div'</code>), a function (<code>() =&gt; {}</code>), a component reference, an array,
+    an object, or even <code>null</code>. This flexibility is what makes the pattern so
+    powerful: the same syntax covers every prop type.
+</p>
+
+<table class="tbl">
+    <thead>
+        <tr><th>Prop type</th><th>Default syntax</th><th>Use case</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>String</td><td><code>as = 'div'</code></td><td>Polymorphic element type</td></tr>
+        <tr><td>Number</td><td><code>size = 16</code></td><td>Spacing, font size</td></tr>
+        <tr><td>Boolean</td><td><code>disabled = false</code></td><td>Toggles</td></tr>
+        <tr><td>Function</td><td><code>onClick = () =&gt; {}</code></td><td>No-op handler (avoids undefined crash)</td></tr>
+        <tr><td>Array</td><td><code>items = []</code></td><td>Empty list initial state</td></tr>
+        <tr><td>Object</td><td><code>style = {}</code></td><td>Style overrides</td></tr>
+        <tr><td>Component</td><td><code>icon = DefaultIcon</code></td><td>Swappable icon</td></tr>
+    </tbody>
+</table>
+
+<div class="callout warn">
+    <div class="callout-title">Pitfall — defaults do not apply to null</div>
+    Destructuring defaults only kick in when the value is <code>undefined</code>. If the caller
+    explicitly passes <code>null</code>, the default does <strong>not</strong> apply — the prop
+    becomes <code>null</code>. This bites you when you write
+    <code>{ title &amp;&amp; &lt;h2&gt;{title}&lt;/h2&gt; }</code> and someone passes
+    <code>title={null}</code>: the guard works (<code>null</code> is falsy), but if you had
+    written <code>{title.length &gt; 0 &amp;&amp; ...}</code> you would crash.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-10-default-prop-values.jpg" alt="Default prop values via destructuring">
+    <div class="figure-caption">Fig 7.1 — <code>{ prop = default }</code> in the parameter list; default is used when caller omits the prop.</div>
+</div>
+
+<div class="callout success">
+    <div class="callout-title">The full pattern, combined</div>
+    Chapters 4–7 form a single toolset for building <strong>flexible wrapper components</strong>.
+    Rest/spread lets you forward arbitrary props. Named slots let you accept multiple JSX
+    regions. Dynamic wrapper props let the caller choose the underlying element. Destructuring
+    defaults let you ship sensible defaults. Together, these four patterns are how every
+    production component library builds its primitives.
+</div>
+
+<!-- ============================================================
+     PART 2 — STATIC CONTENT & COMPONENT INSTANCES
+     ============================================================ -->
+<div class="part-divider">
+    <div class="part-divider-tag">Part II</div>
+    <h2 class="part-divider-title">Static Content &amp; Component Instances</h2>
+</div>
+
+<p class="body-text">
+    Not every byte of your UI belongs inside React. Some markup is genuinely static and putting
+    it through the React render cycle adds cost without benefit. And once you do have components
+    in the tree, you need to understand that each usage is an isolated instance — a fact that
+    beginners often misunderstand and that has surprising consequences for state, performance,
+    and design.
+</p>
+
+<!-- ============================================================
+     CHAPTER 8 — Not All Content Goes in React Components
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 08 · Slide 12</div>
+    <h2 class="chapter-title">Not All Content Belongs in React</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The index.html file is still there</h3>
+<p class="body-text">
+    When you start with React, it is easy to assume that <em>everything</em> visible on the page
+    is rendered by your components. That is not true. Every React app has an
+    <code>index.html</code> (Next.js calls it a layout, Vite calls it <code>index.html</code>,
+    CRA called it <code>public/index.html</code>) that contains the bare HTML skeleton — the
+    <code>&lt;!DOCTYPE&gt;</code>, the <code>&lt;head&gt;</code>, and a single
+    <code>&lt;div id="root"&gt;</code> where React mounts. Anything you put in
+    <code>index.html</code> above or outside that <code>root</code> div is rendered by the
+    browser as plain HTML, <strong>before</strong> React runs and outside React's control.
+</p>
+
+<h3 class="h3">When to put markup in index.html</h3>
+<p class="body-text">
+    Use <code>index.html</code> for content that is truly static — content that never changes for
+    the entire lifetime of the page and that does not need to react to user interaction. The
+    canonical example is a global site header (logo, navigation, search bar) that should appear
+    on every page and does not need React's state or props. Putting this header in
+    <code>index.html</code> means it renders instantly on first paint, before React has even
+    loaded, which improves perceived performance.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">index.html</span></div>
+        <div>HTML</div>
+    </div>
+    <div class="code-content"><span class="kw">&lt;!DOCTYPE</span> html<span class="kw">&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="str">"en"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;title&gt;</span>My Game<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="str">"icon"</span> <span class="attr">href</span>=<span class="str">"/game-logo.png"</span> /<span class="tag">&gt;</span>
+  <span class="tag">&lt;/head&gt;</span>
+  <span class="tag">&lt;body&gt;</span>
+    <span class="tag">&lt;header&gt;</span>                          <span class="cmt">&lt;!-- static — lives outside React --&gt;</span>
+      <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="str">"/game-logo.png"</span>
+           <span class="attr">alt</span>=<span class="str">"Hand drawn tic-tac-toe game board"</span> /<span class="tag">&gt;</span>
+      <span class="tag">&lt;h1&gt;</span>Tic-Tac-Toe<span class="tag">&lt;/h1&gt;</span>
+    <span class="tag">&lt;/header&gt;</span>
+
+    <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"root"</span><span class="tag">&gt;&lt;/div&gt;</span>      <span class="cmt">&lt;!-- React mounts here --&gt;</span>
+
+    <span class="tag">&lt;script</span> <span class="attr">type</span>=<span class="str">"module"</span> <span class="attr">src</span>=<span class="str">"/src/index.jsx"</span><span class="tag">&gt;&lt;/script&gt;</span>
+  <span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></div>
+</div>
+
+<h3 class="h3">The public folder — assets served at the root</h3>
+<p class="body-text">
+    Static assets that you reference by URL — favicons, robots.txt, Open Graph images, fonts,
+    PDFs — go in the <code>public</code> folder. The build tool serves <code>public</code> at the
+    site root, so a file at <code>public/game-logo.png</code> is referenced as
+    <code>/game-logo.png</code> in your HTML, <strong>not</strong> as
+    <code>/public/game-logo.png</code>. Including the <code>public/</code> prefix in the URL is
+    a common beginner mistake that produces a 404.
+</p>
+
+<div class="compare">
+    <div class="compare-cell bad">
+        <div class="compare-label">Wrong</div>
+        <code>&lt;img src="/public/game-logo.png" /&gt;</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">Returns 404 — the <code>public/</code> prefix must be omitted.</p>
+    </div>
+    <div class="compare-cell good">
+        <div class="compare-label">Right</div>
+        <code>&lt;img src="/game-logo.png" /&gt;</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">The build tool maps this to <code>public/game-logo.png</code>.</p>
+    </div>
+</div>
+
+<h3 class="h3">When to import assets instead</h3>
+<p class="body-text">
+    There is a second way to handle images in React: import them as ES modules. This is the
+    right choice when the image is part of a component's UI and you want the build tool to hash,
+    optimise, and bundle it. Imported images get a content-hashed URL that busts the browser
+    cache automatically when the file changes.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Header.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> <span class="prop">logo</span> <span class="kw">from</span> <span class="str">'../assets/logo.png'</span>;   <span class="cmt">// build-tool import</span>
+
+<span class="kw">function</span> <span class="fn">Header</span>() {
+  <span class="kw">return</span> <span class="tag">&lt;img</span> <span class="attr">src</span>={logo} <span class="attr">alt</span>=<span class="str">"Logo"</span> /<span class="tag">&gt;</span>;
+}</div>
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-12-not-all-content-has-to-go-into-react-components.jpg" alt="Static content and public assets">
+    <div class="figure-caption">Fig 8.1 — Static headers stay in index.html above <code>#root</code>; public assets are referenced without the <code>public/</code> prefix.</div>
+</div>
+
+<div class="callout">
+    <div class="callout-title">Decision rule</div>
+    Ask: <em>"Does this content ever need to change in response to user interaction or app state?"</em>
+    If no, it can live in <code>index.html</code>. If yes, it belongs in a React component. When
+    in doubt, put it in a component — the cost of moving it later is low, but a static header in
+    <code>index.html</code> cannot be made interactive without rewriting it.
+</div>
+
+<!-- ============================================================
+     CHAPTER 9 — Component Instances Work in Isolation
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 09 · Slide 16</div>
+    <h2 class="chapter-title">Component Instances Work in Isolation</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">Components vs instances — the crucial distinction</h3>
+<p class="body-text">
+    A <strong>component</strong> is a function — a blueprint, a recipe. An <strong>instance</strong>
+    is what React creates when it actually renders that function somewhere in the tree. If you
+    call <code>&lt;Counter /&gt;</code> three times in your JSX, you have one Counter component
+    but three Counter instances. Each instance has its own state, its own props, its own event
+    handlers, and its own place in the React tree. They do not share anything by default.
+</p>
+
+<p class="body-text">
+    This is the most misunderstood fact in all of React. Beginners assume that because all three
+    Counters come from the same function, they must be connected — that changing one will change
+    the others. The opposite is true. Each instance is a sealed box. React deliberately isolates
+    them so that you can reuse a component without worrying about side effects leaking between
+    usages.
+</p>
+
+<h3 class="h3">Demonstrating isolation with code</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Counter.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> { <span class="prop">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">return</span> (
+    <span class="tag">&lt;button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">setCount</span>(count + <span class="num">1</span>)}<span class="tag">&gt;</span>
+      {count}
+    <span class="tag">&lt;/button&gt;</span>
+  );
+}
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;Counter</span> /<span class="tag">&gt;</span>      <span class="cmt">// instance A — has its own `count`</span>
+      <span class="tag">&lt;Counter</span> /<span class="tag">&gt;</span>      <span class="cmt">// instance B — has its own `count`</span>
+      <span class="tag">&lt;Counter</span> /<span class="tag">&gt;</span>      <span class="cmt">// instance C — has its own `count`</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<p class="body-text">
+    Click instance A and only A's number goes up. B and C are unaffected. Each button has its
+    own <code>count</code> variable in memory, its own setter, and its own click handler closure.
+    The fact that they share a function definition is irrelevant — they are independent objects
+    at runtime.
+</p>
+
+<h3 class="h3">Why isolation matters</h3>
+<p class="body-text">
+    Isolation is what makes components <strong>reusable</strong>. You can drop the same
+    <code>Counter</code> into a sidebar, a header, and a footer, and they will each work
+    independently without you writing any extra code to keep them apart. If they shared state by
+    default, every reusable component would need explicit "namespace" or "scope" props to avoid
+    collisions — which would defeat the entire point of reuse.
+</p>
+
+<div class="callout">
+    <div class="callout-title">What if I DO want them to share state?</div>
+    If multiple instances of the same component need to share state, you must lift that state
+    up to a common parent (Chapter 13) or use a context (beyond this volume). The component
+    itself cannot make its instances share state — that decision belongs to the parent that
+    composes them. This is by design: the component does not know who else is using it.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-16-component-instances-work-in-isolation.jpg" alt="Component instances work in isolation">
+    <div class="figure-caption">Fig 9.1 — Each usage of a component creates an isolated instance with its own state and runtime.</div>
+</div>
+
+<div class="callout tip">
+    <div class="callout-title">Interview-ready summary</div>
+    A component is a function (the recipe); an instance is a runtime object (the cake). React
+    creates a fresh instance every time it encounters your component in JSX. Instances share
+    code but never share state, props, or side effects unless you explicitly connect them via a
+    parent.
+</div>
+
+<!-- ============================================================
+     PART 3 — STATE MANAGEMENT DEEP DIVE
+     ============================================================ -->
+<div class="part-divider">
+    <div class="part-divider-tag">Part III</div>
+    <h2 class="part-divider-title">State Management Deep Dive</h2>
+</div>
+
+<p class="body-text">
+    State is where React apps live or die. The next five chapters cover the patterns that
+    experienced React developers use to keep state correct, fast, and maintainable: functional
+    updaters for batched state, controlled inputs with two-way binding, immutable updates for
+    nested data, lifting state to share it between siblings, and — most importantly — recognising
+    when you have <em>too much</em> state and need to consolidate.
+</p>
+
+<!-- ============================================================
+     CHAPTER 10 — Updating State Based on Old State
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 10 · Slide 18</div>
+    <h2 class="chapter-title">Functional Updaters — Updating State from Old State</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The stale-state bug</h3>
+<p class="body-text">
+    The single most common state bug in React looks like this: you have a boolean flag, you flip
+    it twice in the same handler, and only one flip "takes". Or you increment a counter three
+    times in a loop and the counter only goes up by one. The cause is not React being broken —
+    it is React <strong>batching</strong> state updates for performance, and your update code
+    reading the state variable from the render closure instead of from React's internal queue.
+</p>
+
+<p class="body-text">
+    When you call <code>setCount(count + 1)</code>, React does not immediately update the
+    <code>count</code> variable. It schedules an update for the next render. Until that render
+    happens, <code>count</code> in your closure still holds the old value. If you call
+    <code>setCount(count + 1)</code> three times in a row, all three calls read the same old
+    <code>count</code>, schedule the same target value, and you end up with a single increment.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Stale.jsx — the bug</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Toggle</span>() {
+  <span class="kw">const</span> [isOn, setIsOn] = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+  <span class="kw">function</span> <span class="fn">handleClick</span>() {
+    <span class="fn">setIsOn</span>(!isOn);   <span class="cmt">// reads isOn from closure (still false)</span>
+    <span class="fn">setIsOn</span>(!isOn);   <span class="cmt">// reads isOn from closure (STILL false)</span>
+    <span class="cmt">// Final value: true. ❌ Should be false!</span>
+  }
+
+  <span class="kw">return</span> <span class="tag">&lt;button</span> <span class="attr">onClick</span>={handleClick}<span class="tag">&gt;</span>{isOn ? <span class="str">'ON'</span> : <span class="str">'OFF'</span>}<span class="tag">&lt;/button&gt;</span>;
+}</div>
+</div>
+
+<h3 class="h3">The fix — functional updaters</h3>
+<p class="body-text">
+    When the new state depends on the previous state, you must use the <strong>functional
+    updater</strong> form of the setter. Instead of passing the next value, you pass a function
+    that receives the latest state from React's internal queue and returns the next value. React
+    calls this function at update time, with the correct (chained) previous value — never the
+    stale closure value.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Fixed.jsx — functional updater</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Toggle</span>() {
+  <span class="kw">const</span> [isOn, setIsOn] = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+  <span class="kw">function</span> <span class="fn">handleClick</span>() {
+    <span class="fn">setIsOn</span>(<span class="kw">prev</span> =&gt; !<span class="kw">prev</span>);   <span class="cmt">// receives latest, flips it</span>
+    <span class="fn">setIsOn</span>(<span class="kw">prev</span> =&gt; !<span class="kw">prev</span>);   <span class="cmt">// receives the new latest, flips it back</span>
+    <span class="cmt">// Final value: false. ✅ Correct!</span>
+  }
+
+  <span class="kw">return</span> <span class="tag">&lt;button</span> <span class="attr">onClick</span>={handleClick}<span class="tag">&gt;</span>{isOn ? <span class="str">'ON'</span> : <span class="str">'OFF'</span>}<span class="tag">&lt;/button&gt;</span>;
+}</div>
+</div>
+
+<h3 class="h3">When to use functional updaters</h3>
+<p class="body-text">
+    Use a functional updater <strong>whenever the next state depends on the previous state</strong>.
+    Toggling booleans, incrementing counters, appending to arrays, removing from arrays by index,
+    updating a property of an object — all of these depend on previous state and all need
+    functional updaters. Setting state to a brand-new value that does not depend on the previous
+    one (e.g. <code>setName('Alice')</code>) does not need a functional updater.
+</p>
+
+<table class="tbl">
+    <thead>
+        <tr><th>Pattern</th><th>Depends on prev?</th><th>Use functional updater?</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>setName('Alice')</code></td><td>No</td><td>No — direct value is fine</td></tr>
+        <tr><td><code>setCount(count + 1)</code></td><td>Yes</td><td>Yes — use <code>prev =&gt; prev + 1</code></td></tr>
+        <tr><td><code>setOpen(!open)</code></td><td>Yes</td><td>Yes — use <code>prev =&gt; !prev</code></td></tr>
+        <tr><td><code>setItems([...items, newItem])</code></td><td>Yes</td><td>Yes — use <code>prev =&gt; [...prev, newItem]</code></td></tr>
+        <tr><td><code>setUser({...user, name: 'A'})</code></td><td>Yes</td><td>Yes — use <code>prev =&gt; ({...prev, name: 'A'})</code></td></tr>
+    </tbody>
+</table>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-18-updating-state-based-on-old-state.jpg" alt="Functional state updaters diagram">
+    <div class="figure-caption">Fig 10.1 — Non-functional setters read stale state; functional updaters chain through React's queue.</div>
+</div>
+
+<div class="callout warn">
+    <div class="callout-title">Best practice — default to functional updaters</div>
+    If you are not sure whether a state update depends on the previous state, use the functional
+    form anyway. It is always safe — React handles the function correctly even when batching is
+    not involved. The non-functional form is only safe when you are 100% certain the update does
+    not depend on previous state.
+</div>
+
+<!-- ============================================================
+     CHAPTER 11 — User Input & Two-Way Binding
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 11 · Slide 19</div>
+    <h2 class="chapter-title">User Input &amp; Two-Way Binding</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">Controlled vs uncontrolled inputs</h3>
+<p class="body-text">
+    HTML inputs have their own internal state — type in a text box and the browser updates the
+    box's value, no React required. This is called an <strong>uncontrolled</strong> input because
+    React does not control the value; the DOM does. You can read the value later via a ref or
+    via <code>event.target.value</code> on submit, but React's render output does not drive what
+    the box shows.
+</p>
+
+<p class="body-text">
+    A <strong>controlled</strong> input is the opposite: the input's <code>value</code> prop is
+    bound to a piece of React state, and the <code>onChange</code> handler updates that state on
+    every keystroke. React state becomes the single source of truth for what the box displays.
+    If you call <code>setName('Bob')</code> programmatically, the input updates to show "Bob".
+    If you do not, the input cannot be changed by the user (because <code>value</code> always
+    reflects <code>name</code>, which has not changed).
+</p>
+
+<div class="compare">
+    <div class="compare-cell bad">
+        <div class="compare-label">Uncontrolled (default HTML behaviour)</div>
+        <code>&lt;input defaultValue="Alice" /&gt;</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">DOM owns the value. React cannot programmatically change it. <code>defaultValue</code> sets the initial value only.</p>
+    </div>
+    <div class="compare-cell good">
+        <div class="compare-label">Controlled (React owns the value)</div>
+        <code>&lt;input value={name} onChange={...} /&gt;</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">React state owns the value. Every keystroke flows through React. Programmatic updates Just Work.</p>
+    </div>
+</div>
+
+<h3 class="h3">The two-way binding loop</h3>
+<p class="body-text">
+    A controlled input creates a two-way data flow between React state and the DOM. The user
+    types into the box → the <code>onChange</code> event fires → the handler calls
+    <code>setName(event.target.value)</code> → React re-renders → the input's <code>value</code>
+    prop now reflects the new state → the box displays the new text. This loop is called
+    <strong>two-way binding</strong>, and it is the cornerstone of every form in React.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">NameInput.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> { <span class="prop">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">NameInput</span>({ initialName = <span class="str">''</span> }) {
+  <span class="cmt">// 1. Initialize state — give it a clear, unique name</span>
+  <span class="kw">const</span> [editableName, setEditableName] = <span class="fn">useState</span>(initialName);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;input</span>
+      <span class="cmt">// 4. Bind state to the input's `value` — this is the "reflect" side</span>
+      <span class="attr">value</span>={editableName}
+
+      <span class="cmt">// 2 &amp; 3. onChange fires on every keystroke; call setter with new value</span>
+      <span class="attr">onChange</span={(event) =&gt; <span class="fn">setEditableName</span>(event.target.value)}
+    /<span class="tag">&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Why the loop matters</h3>
+<p class="body-text">
+    Two-way binding keeps the UI and state perfectly synchronised. This means you can validate
+    on every keystroke, you can transform the value before display (e.g. uppercase), you can
+    disable a submit button while the input is empty, and you can reset the form by clearing
+    the state. None of this is possible with uncontrolled inputs, because the input's value
+    lives in the DOM and React does not see it until submit.
+</p>
+
+<div class="callout warn">
+    <div class="callout-title">Pitfall — controlled input with no onChange</div>
+    If you set <code>value={name}</code> without an <code>onChange</code>, React will warn you
+    in the console and the input will be read-only. React controls the value but has no way to
+    update it when the user types, so it refuses to let the user change it. Always pair
+    <code>value</code> with <code>onChange</code> for controlled inputs.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-19-getting-and-using-user-input-and-two-way-binding.jpg" alt="User input and two-way binding">
+    <div class="figure-caption">Fig 11.1 — The two-way binding loop: <code>onChange</code> updates state, <code>value</code> reflects state.</div>
+</div>
+
+<!-- ============================================================
+     CHAPTER 12 — Updating Object State Immutably
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 12 · Slide 21</div>
+    <h2 class="chapter-title">Updating Object &amp; Array State Immutably</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">Why React needs immutability</h3>
+<p class="body-text">
+    React decides whether to re-render by comparing the previous state value with the next one
+    using <code>Object.is</code>. If you mutate an object or array in place — for example,
+    <code>user.name = 'Bob'</code> — the reference is still the same object, so
+    <code>Object.is(prevUser, user)</code> returns true, and React skips the re-render. The
+    state has changed but React never finds out. The screen does not update. This is the most
+    common state bug after the stale-state bug from Chapter 10.
+</p>
+
+<p class="body-text">
+    The fix is to treat state as <strong>immutable</strong>: never mutate the existing object;
+    always create a new object (or array) that contains the updated values. React sees a new
+    reference, knows the state changed, and re-renders. Immutability also enables time-travel
+    debugging, optimistic UI, and React's concurrent rendering features — all of which compare
+    snapshots of state by reference.
+</p>
+
+<h3 class="h3">The 2D array case — Tic-Tac-Toe board</h3>
+<p class="body-text">
+    Nested data structures are where immutability gets tricky. A Tic-Tac-Toe board is a 2D array
+    of cells. To update one cell, you cannot just do <code>board[r][c] = 'X'</code> — that
+    mutates the inner array in place, and React will not see the change. You must create a new
+    outer array, with new inner arrays for the row that changed, leaving the other rows
+    untouched. The pattern is:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">GameBoard.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> { <span class="prop">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">const</span> initialGameBoard = [
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+];
+
+<span class="kw">function</span> <span class="fn">GameBoard</span>() {
+  <span class="kw">const</span> [gameBoard, setGameBoard] = <span class="fn">useState</span>(initialGameBoard);
+
+  <span class="kw">function</span> <span class="fn">handleSelectSquare</span>(rowIndex, colIndex) {
+    <span class="fn">setGameBoard</span>(<span class="kw">prev</span> =&gt; {
+      <span class="cmt">// 1. Create a deep copy of the previous board</span>
+      <span class="kw">const</span> updatedBoard = <span class="kw">prev</span>.<span class="fn">map</span>(<span class="kw">row</span> =&gt; [...<span class="kw">row</span>]);
+
+      <span class="cmt">// 2. Mutate the COPY at the targeted cell</span>
+      updatedBoard[rowIndex][colIndex] = <span class="str">'X'</span>;
+
+      <span class="cmt">// 3. Return the new board — React sees a new reference, re-renders</span>
+      <span class="kw">return</span> updatedBoard;
+    });
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"game-board"</span><span class="tag">&gt;</span>
+      {gameBoard.<span class="fn">map</span>((row, rowIndex) =&gt; (
+        <span class="tag">&lt;li</span> <span class="attr">key</span>={rowIndex}<span class="tag">&gt;</span>
+          <span class="tag">&lt;ol&gt;</span>
+            {row.<span class="fn">map</span>((playerSymbol, colIndex) =&gt; (
+              <span class="tag">&lt;li</span> <span class="attr">key</span>={colIndex}<span class="tag">&gt;</span>
+                <span class="tag">&lt;button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">handleSelectSquare</span>(rowIndex, colIndex)}<span class="tag">&gt;</span>
+                  {playerSymbol}
+                <span class="tag">&lt;/button&gt;</span>
+              <span class="tag">&lt;/li&gt;</span>
+            ))}
+          <span class="tag">&lt;/ol&gt;</span>
+        <span class="tag">&lt;/li&gt;</span>
+      ))}
+    <span class="tag">&lt;/ol&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">The immutable update cheat sheet</h3>
+
+<table class="tbl">
+    <thead>
+        <tr><th>Operation</th><th>Wrong (mutation)</th><th>Right (immutable)</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Append to array</td>
+            <td><code>items.push(newItem)</code></td>
+            <td><code>[...items, newItem]</code></td>
+        </tr>
+        <tr>
+            <td>Remove from array</td>
+            <td><code>items.splice(i, 1)</code></td>
+            <td><code>items.filter((_, idx) =&gt; idx !== i)</code></td>
+        </tr>
+        <tr>
+            <td>Update array item</td>
+            <td><code>items[i].name = 'Bob'</code></td>
+            <td><code>items.map((it, idx) =&gt; idx === i ? {...it, name: 'Bob'} : it)</code></td>
+        </tr>
+        <tr>
+            <td>Update object field</td>
+            <td><code>user.name = 'Bob'</code></td>
+            <td><code>{...user, name: 'Bob'}</code></td>
+        </tr>
+        <tr>
+            <td>Update nested object</td>
+            <td><code>user.address.city = 'NYC'</code></td>
+            <td><code>{...user, address: {...user.address, city: 'NYC'}}</code></td>
+        </tr>
+        <tr>
+            <td>Update 2D array cell</td>
+            <td><code>board[r][c] = 'X'</code></td>
+            <td><code>board.map((row, ri) =&gt; ri === r ? row.map((cell, ci) =&gt; ci === c ? 'X' : cell) : row)</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-21-updating-object-state-immutably.jpg" alt="Updating object state immutably">
+    <div class="figure-caption">Fig 12.1 — Copy the nested structure, modify the copy, return the copy. Never mutate the original.</div>
+</div>
+
+<div class="callout tip">
+    <div class="callout-title">When deep updates get painful</div>
+    For deeply nested state (3+ levels), the manual spread pattern becomes unreadable. At that
+    point, reach for libraries like <strong>Immer</strong> (via <code>use-immer</code>) which
+    let you write "mutating" code that is internally translated into immutable updates. Immer
+    is the same library Redux Toolkit uses under the hood. Most production React apps adopt it
+    once their state gets nested enough.
+</div>
+
+<!-- ============================================================
+     CHAPTER 13 — Lifting State Up
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 13 · Slide 22</div>
+    <h2 class="chapter-title">Lifting State Up to Share Between Siblings</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The sibling communication problem</h3>
+<p class="body-text">
+    Recall from Chapter 9 that component instances are isolated. So what happens when two
+    sibling components need to share data? A common case: a Tic-Tac-Toe game has a
+    <code>&lt;GameBoard&gt;</code> component that captures clicks, and a separate
+    <code>&lt;PlayerInfo&gt;</code> sibling that highlights whose turn it is. The PlayerInfo
+    needs to know what the GameBoard just did. They cannot talk to each other directly — there
+    is no sibling-to-sibling prop channel.
+</p>
+
+<p class="body-text">
+    The React answer is to <strong>lift the state up</strong> to the nearest common ancestor —
+    usually the parent that renders both siblings. The parent owns the state and the update
+    function, and passes them down as props: the state value goes to the component that displays
+    it, and the update function goes to the component that triggers changes. Data flows down;
+    actions flow up.
+</p>
+
+<h3 class="h3">The lifted-state pattern in code</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx — owns the shared state</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [activePlayer, setActivePlayer] = <span class="fn">useState</span>(<span class="str">'X'</span>);
+
+  <span class="kw">function</span> <span class="fn">handleSelectSquare</span>(rowIndex, colIndex) {
+    <span class="cmt">// Use functional updater — next player depends on current</span>
+    <span class="fn">setActivePlayer</span>(<span class="kw">prev</span> =&gt; <span class="kw">prev</span> === <span class="str">'X'</span> ? <span class="str">'O'</span> : <span class="str">'X'</span>);
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;GameBoard</span>
+        <span class="attr">activePlayerSymbol</span>={activePlayer}
+        <span class="attr">onSelectSquare</span>={handleSelectSquare}
+      /<span class="tag">&gt;</span>
+      <span class="tag">&lt;PlayerInfo</span> <span class="attr">activePlayer</span>={activePlayer} /<span class="tag">&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">GameBoard.jsx — receives both</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">GameBoard</span>({ activePlayerSymbol, onSelectSquare }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"game-board"</span><span class="tag">&gt;</span>
+      {/* ... */}
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">onSelectSquare</span>(rowIndex, colIndex)}<span class="tag">&gt;</span>
+        {activePlayerSymbol}              <span class="cmt">// shows whose symbol will be placed</span>
+      <span class="tag">&lt;/button&gt;</span>
+      {/* ... */}
+    <span class="tag">&lt;/ol&gt;</span>
+  );
+}</div>
+</div>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">PlayerInfo.jsx — reads the state</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">PlayerInfo</span>({ activePlayer }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;PlayerCard</span> <span class="attr">symbol</span>=<span class="str">"X"</span> <span class="attr">isActive</span>={activePlayer === <span class="str">'X'</span>} /<span class="tag">&gt;</span>
+      <span class="tag">&lt;PlayerCard</span> <span class="attr">symbol</span>=<span class="str">"O"</span> <span class="attr">isActive</span>={activePlayer === <span class="str">'O'</span>} /<span class="tag">&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">The mental model</h3>
+<p class="body-text">
+    Think of the parent as a "post office". Siblings do not deliver letters to each other
+    directly — they go through the post office. The GameBoard does not call
+    <code>setActivePlayer</code> directly; it calls <code>onSelectSquare</code>, which is a
+    function the parent passed down. The parent's handler updates the state, which triggers a
+    re-render of the parent, which passes the new state down to both siblings. The PlayerInfo
+    sees the new active player and highlights the correct card.
+</p>
+
+<div class="callout">
+    <div class="callout-title">Where to lift state to</div>
+    Lift state to the <strong>lowest common ancestor</strong> of all components that need it.
+    Not higher. If only <code>GameBoard</code> and <code>PlayerInfo</code> need it, and they
+    share <code>App</code> as their parent, App is the right place. Do not push it up to a
+    grandparent that does not need it — that just creates extra prop-drilling for no benefit.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-22-lifting-the-state-up.jpg" alt="Lifting state up to share between siblings">
+    <div class="figure-caption">Fig 13.1 — App owns <code>activePlayer</code>; GameBoard calls up; PlayerInfo reads down.</div>
+</div>
+
+<!-- ============================================================
+     CHAPTER 14 — Avoid Managing Multiple Intersecting States
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 14 · Slide 23</div>
+    <h2 class="chapter-title">Avoid Multiple Intersecting States — One Source of Truth</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The duplication trap</h3>
+<p class="body-text">
+    As apps grow, it is tempting to keep separate pieces of state for everything: a state for
+    the game board, a state for the active player, a state for the move log, a state for the
+    winner, a state for the turn count. Each piece of state feels natural in isolation, but
+    together they create a maintenance nightmare. The same fact about the world is stored in
+    multiple places, and you must keep them all in sync. The moment one update misses a
+    synchronisation step, the UI shows inconsistent data and the bug is nearly impossible to
+    track down.
+</p>
+
+<p class="body-text">
+    The principle that prevents this is <strong>single source of truth</strong>: store each fact
+    about the world in exactly one place, and derive everything else from it. In a Tic-Tac-Toe
+    game, the only thing you actually need to store is the ordered list of moves
+    (<code>gameTurns</code>). The current board, the current player, the move log, and the
+    winner can all be derived from that one array. If you store them separately, you have five
+    states that must stay in sync; if you derive them, you have one state and four pure
+    computations.
+</p>
+
+<h3 class="h3">The lifted-state vs duplicate-state comparison</h3>
+
+<div class="compare">
+    <div class="compare-cell bad">
+        <div class="compare-label">Duplicate state — fragile</div>
+        <ul class="body-list" style="margin-top:4px;font-size:11.5px">
+            <li><code>gameBoard</code> — 2D array</li>
+            <li><code>activePlayer</code> — 'X' / 'O'</li>
+            <li><code>gameTurns</code> — array of moves</li>
+            <li><code>hasWinner</code> — boolean</li>
+        </ul>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">Every click must update all four consistently. One miss = bug.</p>
+    </div>
+    <div class="compare-cell good">
+        <div class="compare-label">Lifted state — robust</div>
+        <ul class="body-list" style="margin-top:4px;font-size:11.5px">
+            <li><code>gameTurns</code> — array of moves (the truth)</li>
+            <li>Board — derived via <code>for...of</code> loop</li>
+            <li>Active player — derived from <code>turns[0]</code></li>
+            <li>Winner — derived via win-line check</li>
+        </ul>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">One update; everything else recomputes. No sync bugs possible.</p>
+    </div>
+</div>
+
+<h3 class="h3">Code: deriving the active player from turns</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx — single source of truth</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [gameTurns, setGameTurns] = <span class="fn">useState</span>([]);
+
+  <span class="kw">function</span> <span class="fn">handleSelectSquare</span>(rowIndex, colIndex) {
+    <span class="cmt">// Derive the current player from the previous turn</span>
+    <span class="kw">const</span> currentPlayer = <span class="fn">deriveActivePlayer</span>(gameTurns);
+
+    <span class="fn">setGameTurns</span>(<span class="kw">prev</span> =&gt; {
+      <span class="kw">const</span> updatedTurns = [
+        { <span class="attr">square</span>: { <span class="attr">row</span>: rowIndex, <span class="attr">col</span>: colIndex }, <span class="attr">player</span>: currentPlayer },
+        ...<span class="kw">prev</span>,
+      ];
+      <span class="kw">return</span> updatedTurns;
+    });
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;GameBoard</span> <span class="attr">turns</span>={gameTurns} <span class="attr">onSelectSquare</span>={handleSelectSquare} /<span class="tag">&gt;</span>
+      <span class="tag">&lt;Log</span> <span class="attr">turns</span>={gameTurns} /<span class="tag">&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cmt">// Pure function — first turn is X, then alternates</span>
+<span class="kw">function</span> <span class="fn">deriveActivePlayer</span>(turns) {
+  <span class="kw">return</span> turns.<span class="prop">length</span> === <span class="num">0</span> || turns[<span class="num">0</span>].<span class="prop">player</span> === <span class="str">'O'</span> ? <span class="str">'X'</span> : <span class="str">'O'</span>;
+}</div>
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-23-avoid-managing-multiple-intersecting-states.jpg" alt="Avoid managing multiple intersecting states">
+    <div class="figure-caption">Fig 14.1 — One source of truth (<code>gameTurns</code>); derive the board, the active player, and the log from it.</div>
+</div>
+
+<div class="callout success">
+    <div class="callout-title">Why this is the most important chapter in this volume</div>
+    Every React bug you will ever chase in production is, at its core, a state synchronisation
+    bug. Two pieces of state that should agree but do not. A derived value that was cached
+    incorrectly. A flag that was not reset. Single source of truth eliminates the entire class
+    of bug by making it impossible. If you remember one chapter from this book, remember this
+    one.
+</div>
+
+<!-- ============================================================
+     PART 4 — DERIVING STATE — THE SMARTER PATTERN
+     ============================================================ -->
+<div class="part-divider">
+    <div class="part-divider-tag">Part IV</div>
+    <h2 class="part-divider-title">Deriving State — The Smarter Pattern</h2>
+</div>
+
+<p class="body-text">
+    Chapter 14 introduced the single-source-of-truth principle. The next four chapters expand on
+    that idea by showing four concrete patterns for <em>deriving</em> values instead of storing
+    them: avoid mixing state with state, derive state from props, share state across components,
+    and lift computed values up. Master these and you will write React code that has half the
+    state and twice the reliability of your peers.
+</p>
+
+<!-- ============================================================
+     CHAPTER 15 — Avoid Mixing State — Prefer Deriving
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 15 · Slide 24</div>
+    <h2 class="chapter-title">Avoid Mixing State — Prefer Deriving</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">The active-player trap</h3>
+<p class="body-text">
+    In Chapter 13 we lifted <code>activePlayer</code> state up to <code>App</code>. That was the
+    right call at the time, because the board and the player info both needed it. But Chapter 14
+    introduced a better idea: store only <code>gameTurns</code>, and derive everything else. So
+    which is it — store <code>activePlayer</code>, or derive it?
+</p>
+
+<p class="body-text">
+    The answer is: <strong>derive it</strong>. If you store both <code>gameTurns</code> and
+    <code>activePlayer</code>, you have to keep them in sync — every update to
+    <code>gameTurns</code> must also flip <code>activePlayer</code>, and any bug in that
+    synchronisation produces an inconsistent UI (e.g. the board thinks it is X's turn but the
+    player panel highlights O). If you derive <code>activePlayer</code> from
+    <code>gameTurns[0]</code> instead, there is nothing to keep in sync. The active player is
+    always a function of the turn history.
+</p>
+
+<h3 class="h3">The turn object shape</h3>
+<p class="body-text">
+    To derive everything from a single array, the array elements need to be self-describing.
+    Each turn records which square was played and which player played it:
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">turnShape.js</span></div>
+        <div>JS</div>
+    </div>
+    <div class="code-content"><span class="cmt">// A single turn is an object with two fields:</span>
+{
+  <span class="attr">square</span>: { <span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">2</span> },   <span class="cmt">// which cell was clicked</span>
+  <span class="attr">player</span>: <span class="str">'X'</span>                           <span class="cmt">// who clicked it</span>
+}
+
+<span class="cmt">// The turns array is ordered newest-first:</span>
+<span class="cmt">// [newestTurn, olderTurn, evenOlderTurn, ...]</span>
+<span class="cmt">// This means turns[0] is always the most recent move.</span></div>
+</div>
+
+<h3 class="h3">Deriving the active player</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [gameTurns, setGameTurns] = <span class="fn">useState</span>([]);
+
+  <span class="kw">function</span> <span class="fn">handleSelectSquare</span>(rowIndex, colIndex) {
+    <span class="cmt">// Derive current player from turns — no separate state!</span>
+    <span class="kw">const</span> currentPlayer = <span class="fn">deriveActivePlayer</span>(gameTurns);
+
+    <span class="fn">setGameTurns</span>(<span class="kw">prevTurns</span> =&gt; {
+      <span class="cmt">// Avoid duplicate moves on the same square</span>
+      <span class="kw">const</span> isSquareTaken = <span class="kw">prevTurns</span>.<span class="fn">some</span>(
+        t =&gt; t.square.row === rowIndex &amp;&amp; t.square.col === colIndex
+      );
+      <span class="kw">if</span> (isSquareTaken) <span class="kw">return</span> <span class="kw">prevTurns</span>;
+
+      <span class="cmt">// Prepend newest — newest-first ordering makes turns[0] the latest</span>
+      <span class="kw">return</span> [
+        { <span class="attr">square</span>: { <span class="attr">row</span>: rowIndex, <span class="attr">col</span>: colIndex }, <span class="attr">player</span>: currentPlayer },
+        ...<span class="kw">prevTurns</span>,
+      ];
+    });
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;GameBoard</span> <span class="attr">turns</span>={gameTurns} <span class="attr">onSelectSquare</span>={handleSelectSquare} /<span class="tag">&gt;</span>
+      <span class="tag">&lt;Log</span> <span class="attr">turns</span>={gameTurns} /<span class="tag">&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}
+
+<span class="cmt">// Pure function: X starts; whoever did NOT play last plays next</span>
+<span class="kw">function</span> <span class="fn">deriveActivePlayer</span>(turns) {
+  <span class="kw">if</span> (turns.<span class="prop">length</span> === <span class="num">0</span>) <span class="kw">return</span> <span class="str">'X'</span>;
+  <span class="kw">return</span> turns[<span class="num">0</span>].player === <span class="str">'X'</span> ? <span class="str">'O'</span> : <span class="str">'X'</span>;
+}</div>
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-24-avoid-mixing-state-data-during-updates-and-prefer-deriving-state.jpg" alt="Avoid mixing state data during updates, prefer deriving state">
+    <div class="figure-caption">Fig 15.1 — Parent owns the immutable turns array; board and active player are both derived from it.</div>
+</div>
+
+<div class="callout">
+    <div class="callout-title">When to store vs derive — the rule</div>
+    Store a value as state if and only if it <strong>cannot</strong> be computed from existing
+    state or props. If you can compute it from what you already have, derive it. The cost of
+    recomputing on every render is almost always smaller than the cost of keeping multiple
+    pieces of state in sync.
+</div>
+
+<!-- ============================================================
+     CHAPTER 16 — Deriving State from Props
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 16 · Slide 25</div>
+    <h2 class="chapter-title">Deriving State from Props</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">From "board state" to "board derivation"</h3>
+<p class="body-text">
+    In Chapter 12 we stored the game board as a 2D array in <code>useState</code>. In Chapter 14
+    we said the only state should be <code>gameTurns</code>. So where does the board come from?
+    The answer is the natural conclusion of the single-source-of-truth principle: the
+    <code>GameBoard</code> component receives <code>turns</code> as a prop and <strong>derives</strong>
+    the 2D board from that array on every render. No <code>useState</code> in
+    <code>GameBoard</code> at all.
+</p>
+
+<p class="body-text">
+    This is called "deriving state from props". The board is computed inside the render function
+    from the <code>turns</code> prop, using a plain <code>for...of</code> loop. Each render
+    rebuilds the board from scratch — which sounds expensive, but is actually cheap (a 9-cell
+    loop runs in microseconds) and eliminates an entire class of state-sync bugs.
+</p>
+
+<h3 class="h3">The derivation code</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">GameBoard.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">const</span> initialGameBoard = [
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+];
+
+<span class="kw">function</span> <span class="fn">GameBoard</span>({ turns, onSelectSquare }) {
+  <span class="cmt">// Derive the board from turns — NO useState here!</span>
+  <span class="kw">const</span> gameBoard = <span class="fn">deriveGameBoard</span>(turns);
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"game-board"</span><span class="tag">&gt;</span>
+      {gameBoard.<span class="fn">map</span>((row, rowIndex) =&gt; (
+        <span class="tag">&lt;li</span> <span class="attr">key</span>={rowIndex}<span class="tag">&gt;</span>
+          <span class="tag">&lt;ol&gt;</span>
+            {row.<span class="fn">map</span>((playerSymbol, colIndex) =&gt; (
+              <span class="tag">&lt;li</span> <span class="attr">key</span>={colIndex}<span class="tag">&gt;</span>
+                <span class="tag">&lt;button</span>
+                  <span class="attr">onClick</span>={() =&gt; <span class="fn">onSelectSquare</span>(rowIndex, colIndex)}
+                  <span class="attr">disabled</span>={playerSymbol !== <span class="kw">null</span>}
+                <span class="tag">&gt;</span>
+                  {playerSymbol}
+                <span class="tag">&lt;/button&gt;</span>
+              <span class="tag">&lt;/li&gt;</span>
+            ))}
+          <span class="tag">&lt;/ol&gt;</span>
+        <span class="tag">&lt;/li&gt;</span>
+      ))}
+    <span class="tag">&lt;/ol&gt;</span>
+  );
+}
+
+<span class="cmt">// Pure function — same input always produces same output</span>
+<span class="kw">function</span> <span class="fn">deriveGameBoard</span>(turns) {
+  <span class="cmt">// Start from a fresh empty board every time</span>
+  <span class="kw">const</span> board = initialGameBoard.<span class="fn">map</span>(<span class="kw">row</span> =&gt; [...<span class="kw">row</span>]);
+
+  <span class="cmt">// Replay every turn onto the board</span>
+  <span class="kw">for</span> (<span class="kw">const</span> turn <span class="kw">of</span> turns) {
+    <span class="kw">const</span> { row, col } = turn.square;
+    board[row][col] = turn.player;
+  }
+
+  <span class="kw">return</span> board;
+}</div>
+</div>
+
+<h3 class="h3">Why this beats storing the board in state</h3>
+<p class="body-text">
+    Three reasons. First, there is no state-sync bug surface: the board is always a pure function
+    of the turns, so it can never disagree with the turn history. Second, undo and replay become
+    trivial — to undo, remove the latest turn; the board recomputes automatically. Third, the
+    component is simpler: no <code>useState</code>, no <code>setGameBoard</code>, no functional
+    updater, no immutability dance. The component receives data and renders it.
+</p>
+
+<div class="callout warn">
+    <div class="callout-title">Pitfall — guard against undefined indices</div>
+    When deriving from a turns array that may be loaded from a server or localStorage, always
+    validate the <code>square.row</code> and <code>square.col</code> values before indexing into
+    the board. A malformed turn with <code>{row: undefined, col: undefined}</code> will throw
+    <code>cannot set properties of undefined</code> and crash your render. Use a guard like
+    <code>if (board[row] &amp;&amp; board[row][col] !== undefined)</code> before assigning.
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-25-deriving-state-from-props.jpg" alt="Deriving state from props">
+    <div class="figure-caption">Fig 16.1 — <code>turns</code> prop in; derived 2D board out. <code>GameBoard</code> has no internal state.</div>
+</div>
+
+<!-- ============================================================
+     CHAPTER 17 — Sharing State with Multiple Components
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 17 · Slide 26</div>
+    <h2 class="chapter-title">Sharing the Same State with Multiple Components</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">One state, many UIs</h3>
+<p class="body-text">
+    The natural payoff of lifting state up and deriving everything is that <strong>multiple
+    components can render from the same state without any extra wiring</strong>. In the
+    Tic-Tac-Toe app, both the <code>GameBoard</code> and the <code>Log</code> receive the same
+    <code>gameTurns</code> prop. When the user clicks a square, <code>gameTurns</code> updates
+    once, both components re-render, and the board shows the new move while the log shows the
+    new entry. They stay synchronised by construction — there is no separate "log state" to
+    keep in sync with "board state".
+</p>
+
+<h3 class="h3">The Log component</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Log.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Log</span>({ turns }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"log"</span><span class="tag">&gt;</span>
+      {turns.<span class="fn">map</span>((turn, index) =&gt; {
+        <span class="kw">const</span> { row, col } = turn.square;
+
+        <span class="cmt">// Template literal builds the human-readable string</span>
+        <span class="kw">return</span> (
+          <span class="tag">&lt;li</span> <span class="attr">key</span>={<span class="str">`${row}-${col}-${index}`</span><span class="tag">&gt;</span>
+            {<span class="str">`Player ${turn.player} selected row ${row}, col ${col}`</span>}
+          <span class="tag">&lt;/li&gt;</span>
+        );
+      })}
+    <span class="tag">&lt;/ol&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Why keys matter here</h3>
+<p class="body-text">
+    The <code>key</code> prop on list items must be unique and stable across renders. Using the
+    array index as the only key is a famous bug source — if an item is inserted at the front of
+    the list (which is exactly what happens when we prepend the newest turn), every existing
+    item's index shifts by one, and React reuses the wrong DOM nodes. The fix is to compose a
+    key from the data itself: <code>{`${row}-${col}`}</code> is unique per cell, and adding the
+    array index handles the (rare) case of repeated cell coordinates from undo/redo.
+</p>
+
+<div class="compare">
+    <div class="compare-cell bad">
+        <div class="compare-label">Bad key</div>
+        <code>key={index}</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">Index shifts when items are prepended; React reuses wrong DOM nodes; state leaks between items.</p>
+    </div>
+    <div class="compare-cell good">
+        <div class="compare-label">Good key</div>
+        <code>key={<span class="str">`${row}-${col}`</span>}</code>
+        <p style="margin:6px 0 0;font-size:11px;color:var(--muted)">Stable per cell; React matches items by data, not by position.</p>
+    </div>
+</div>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-26-sharing-the-same-state-with-multiple-components.jpg" alt="Sharing state with multiple components">
+    <div class="figure-caption">Fig 17.1 — Both <code>GameBoard</code> and <code>Log</code> receive the same <code>turns</code> prop; one state, two views.</div>
+</div>
+
+<div class="callout success">
+    <div class="callout-title">The pattern, summarised</div>
+    Lift state to the lowest common ancestor. Pass the state down as a prop to every component
+    that needs it. Derive each component's view from that prop. One state, many views, zero sync
+    bugs. This is the entire React data-flow model in one sentence.
+</div>
+
+<!-- ============================================================
+     CHAPTER 18 — Lifting a Computed Value Up
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 18 · Slide 30</div>
+    <h2 class="chapter-title">Lifting a Computed Value Up</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">When the derived value is needed by multiple components</h3>
+<p class="body-text">
+    Sometimes a derived value is needed by more than one component. In Tic-Tac-Toe, the
+    <strong>winner</strong> needs to be checked by both the <code>GameBoard</code> (to stop
+    accepting clicks) and the <code>PlayerInfo</code> (to crown the winner) and possibly a
+    <code>GameOver</code> overlay (to show the result). If each component computes the winner
+    independently, you have duplicated logic. If you store <code>hasWinner</code> as state, you
+    reintroduce the synchronisation bug from Chapter 14.
+</p>
+
+<p class="body-text">
+    The solution is to compute the derived value <strong>once</strong>, in the lowest common
+    ancestor, and pass it down as a prop. This is "lifting a computed value up" — the same
+    idea as lifting state up, but applied to a derived value rather than to user-driven state.
+    The parent owns the computation; the children receive the result.
+</p>
+
+<h3 class="h3">Computing the winner</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">winningCombinations.js</span></div>
+        <div>JS</div>
+    </div>
+    <div class="code-content"><span class="cmt">// All 8 winning lines on a 3x3 board</span>
+<span class="kw">const</span> WINNING_COMBINATIONS = [
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">2</span>}],   <span class="cmt">// top row</span>
+  [{<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">2</span>}],   <span class="cmt">// middle row</span>
+  [{<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">2</span>}],   <span class="cmt">// bottom row</span>
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">0</span>}],   <span class="cmt">// left col</span>
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">1</span>}],   <span class="cmt">// middle col</span>
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">2</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">2</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">2</span>}],   <span class="cmt">// right col</span>
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">2</span>}],   <span class="cmt">// diag TL-BR</span>
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">2</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">0</span>}],   <span class="cmt">// diag TR-BL</span>
+];
+
+<span class="cmt">// Pure function: returns 'X', 'O', or null</span>
+<span class="kw">function</span> <span class="fn">deriveWinner</span>(gameBoard, players) {
+  <span class="kw">for</span> (<span class="kw">const</span> combination <span class="kw">of</span> WINNING_COMBINATIONS) {
+    <span class="kw">const</span> [a, b, c] = combination;
+    <span class="kw">const</span> symbolA = gameBoard[a.row][a.col];
+    <span class="kw">const</span> symbolB = gameBoard[b.row][b.col];
+    <span class="kw">const</span> symbolC = gameBoard[c.row][c.col];
+
+    <span class="kw">if</span> (
+      symbolA &amp;&amp;
+      symbolA === symbolB &amp;&amp;
+      symbolA === symbolC
+    ) {
+      <span class="kw">return</span> players[symbolA];   <span class="cmt">// returns the player object, not just the symbol</span>
+    }
+  }
+  <span class="kw">return</span> <span class="kw">null</span>;
+}</div>
+</div>
+
+<h3 class="h3">Lifting the computation into App</h3>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [gameTurns, setGameTurns] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [players, setPlayers] = <span class="fn">useState</span>({
+    <span class="attr">X</span>: <span class="str">'Player 1'</span>,
+    <span class="attr">O</span>: <span class="str">'Player 2'</span>,
+  });
+
+  <span class="cmt">// Derive the board from turns (Chapter 16)</span>
+  <span class="kw">const</span> gameBoard = <span class="fn">deriveGameBoard</span>(gameTurns);
+
+  <span class="cmt">// Derive the winner from the board — lifted computation!</span>
+  <span class="kw">const</span> winner = <span class="fn">deriveWinner</span>(gameBoard, players);
+
+  <span class="cmt">// Derive a draw — board full, no winner</span>
+  <span class="kw">const</span> hasDraw = gameTurns.<span class="prop">length</span> === <span class="num">9</span> &amp;&amp; !winner;
+
+  <span class="kw">function</span> <span class="fn">handleSelectSquare</span>(rowIndex, colIndex) {
+    <span class="kw">if</span> (winner) <span class="kw">return</span>;                       <span class="cmt">// stop accepting clicks after a win</span>
+    <span class="cmt">// ... same as Chapter 15
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div&gt;</span>
+      <span class="tag">&lt;GameBoard</span>
+        <span class="attr">board</span>={gameBoard}                  <span class="cmt">// pass the derived board, not turns</span>
+        <span class="attr">onSelectSquare</span>={handleSelectSquare}
+      /<span class="tag">&gt;</span>
+      <span class="tag">&lt;PlayerInfo</span>
+        <span class="attr">activePlayer</span>={<span class="fn">deriveActivePlayer</span>(gameTurns)}
+        <span class="attr">winner</span>={winner}
+      /<span class="tag">&gt;</span>
+      {(winner || hasDraw) &amp;&amp; (
+        <span class="tag">&lt;GameOver</span> <span class="attr">winner</span>={winner} <span class="attr">onRestart</span>={() =&gt; <span class="fn">setGameTurns</span>([])} /<span class="tag">&gt;</span>
+      )}
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Why this is "lifting a computed value" and not "lifting state"</h3>
+<p class="body-text">
+    The distinction is subtle but important. The winner is not state — it does not exist
+    independently, and the user does not change it directly. It is a pure function of the board
+    (which is itself a pure function of the turns). What we lifted is the <em>computation</em>,
+    not the storage. We could have computed the winner inside <code>GameBoard</code>, but then
+    <code>PlayerInfo</code> and <code>GameOver</code> would also need to compute it, duplicating
+    the logic. By computing it once in <code>App</code> and passing it down, every consumer sees
+    the same answer and the logic lives in one place.
+</p>
+
+<h3 class="h3">Reference diagram</h3>
+<div class="figure">
+    <img src="images/essentials-deep-dive-30-lifting-a-computed-value-up.jpg" alt="Lifting a computed value up">
+    <div class="figure-caption">Fig 18.1 — <code>App</code> derives <code>gameBoard</code> from <code>gameTurns</code>, then derives <code>winner</code> from <code>gameBoard</code>. Both flow down as props.</div>
+</div>
+
+<div class="callout tip">
+    <div class="callout-title">When the computation is expensive</div>
+    If a derived value is expensive to compute (e.g. sorting a 10,000-item list on every render),
+    wrap it in <code>useMemo</code> so React only recomputes when the inputs change. For the
+    Tic-Tac-Toe winner check, the 8-line scan is cheap enough that <code>useMemo</code> is
+    overkill — recompute on every render is fine. Reach for <code>useMemo</code> only when a
+    profile shows the derivation is actually a bottleneck.
+</div>
+
+<!-- ============================================================
+     PART 5 — CAPSTONE PROJECT
+     ============================================================ -->
+<div class="part-divider">
+    <div class="part-divider-tag">Part V</div>
+    <h2 class="part-divider-title">Capstone Project — Tic-Tac-Toe</h2>
+</div>
+
+<p class="body-text">
+    The capstone project for this volume weaves together every pattern from Parts I–IV into a
+    single working application: a Tic-Tac-Toe game with editable player names, a move log, win
+    detection, and a game-over modal. Read this chapter as a review — every section references
+    the chapter where the pattern was introduced, so you can flip back if a detail is fuzzy.
+</p>
+
+<!-- ============================================================
+     CHAPTER 19 — Capstone Project
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 19 · Capstone</div>
+    <h2 class="chapter-title">Building a Complete Tic-Tac-Toe Game</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<h3 class="h3">Project structure</h3>
+<p class="body-text">
+    Following the feature-based split from Chapter 3, the project is organised into focused
+    component files. Each file owns one concern; <code>App.jsx</code> is a thin coordinator that
+    owns the shared state and derives everything else.
+</p>
+
+<table class="tbl">
+    <thead>
+        <tr><th>File</th><th>Responsibility</th><th>Owns state?</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>App.jsx</code></td><td>Layout, owns <code>gameTurns</code> &amp; <code>players</code>, derives board + winner</td><td>Yes (2 states only)</td></tr>
+        <tr><td><code>PlayerInfo.jsx</code></td><td>Editable player names, active-player highlight, winner badge</td><td>Local edit-mode flag</td></tr>
+        <tr><td><code>GameBoard.jsx</code></td><td>3x3 grid, receives <code>board</code> prop, calls <code>onSelectSquare</code></td><td>None — fully derived</td></tr>
+        <tr><td><code>Log.jsx</code></td><td>Ordered list of moves, formatted with template literals</td><td>None</td></tr>
+        <tr><td><code>GameOver.jsx</code></td><td>Modal overlay, shows winner or draw, restart button</td><td>None</td></tr>
+        <tr><td><code>winner.js</code></td><td>Pure functions: <code>deriveGameBoard</code>, <code>deriveWinner</code>, <code>deriveActivePlayer</code></td><td>N/A (pure logic)</td></tr>
+    </tbody>
+</table>
+
+<h3 class="h3">Step 1 — App owns the two pieces of state</h3>
+<p class="body-text">
+    Per Chapter 14, the only state <code>App</code> owns is the move list and the player names.
+    Everything else (board, active player, winner, draw) is derived. The handler guards against
+    clicks on taken squares or after a win.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">App.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> { <span class="prop">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> <span class="prop">PlayerInfo</span> <span class="kw">from</span> <span class="str">'./components/PlayerInfo'</span>;
+<span class="kw">import</span> <span class="prop">GameBoard</span> <span class="kw">from</span> <span class="str">'./components/GameBoard'</span>;
+<span class="kw">import</span> <span class="prop">Log</span> <span class="kw">from</span> <span class="str">'./components/Log'</span>;
+<span class="kw">import</span> <span class="prop">GameOver</span> <span class="kw">from</span> <span class="str">'./components/GameOver'</span>;
+<span class="kw">import</span> { <span class="prop">deriveActivePlayer</span>, <span class="prop">deriveGameBoard</span>, <span class="prop">deriveWinner</span> } <span class="kw">from</span> <span class="str">'./winner'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [gameTurns, setGameTurns] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [players, setPlayers] = <span class="fn">useState</span>({
+    <span class="attr">X</span>: <span class="str">'Player 1'</span>,
+    <span class="attr">O</span>: <span class="str">'Player 2'</span>,
+  });
+
+  <span class="kw">const</span> activePlayer = <span class="fn">deriveActivePlayer</span>(gameTurns);
+  <span class="kw">const</span> gameBoard   = <span class="fn">deriveGameBoard</span>(gameTurns);
+  <span class="kw">const</span> winner      = <span class="fn">deriveWinner</span>(gameBoard, players);
+  <span class="kw">const</span> hasDraw     = gameTurns.<span class="prop">length</span> === <span class="num">9</span> &amp;&amp; !winner;
+
+  <span class="kw">function</span> <span class="fn">handleSelectSquare</span>(rowIndex, colIndex) {
+    <span class="kw">if</span> (winner) <span class="kw">return</span>;  <span class="cmt">// game is over</span>
+
+    <span class="fn">setGameTurns</span>(<span class="kw">prev</span> =&gt; {
+      <span class="kw">const</span> taken = <span class="kw">prev</span>.<span class="fn">some</span>(t =&gt; t.square.row === rowIndex &amp;&amp; t.square.col === colIndex);
+      <span class="kw">if</span> (taken) <span class="kw">return</span> <span class="kw">prev</span>;
+
+      <span class="kw">const</span> player = <span class="fn">deriveActivePlayer</span>(<span class="kw">prev</span>);
+      <span class="kw">return</span> [{ <span class="attr">square</span>: { <span class="attr">row</span>: rowIndex, <span class="attr">col</span>: colIndex }, <span class="attr">player</span> }, ...<span class="kw">prev</span>];
+    });
+  }
+
+  <span class="kw">function</span> <span class="fn">handleRestart</span>() {
+    <span class="fn">setGameTurns</span>([]);
+  }
+
+  <span class="kw">function</span> <span class="fn">handleRename</span>(symbol, newName) {
+    <span class="fn">setPlayers</span>(<span class="kw">prev</span> =&gt; ({ ...<span class="kw">prev</span>, [symbol]: newName }));
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;main&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"game-container"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"players"</span> <span class="attr">className</span>=<span class="str">"highlight-player"</span><span class="tag">&gt;</span>
+          <span class="tag">&lt;PlayerInfo</span>
+            <span class="attr">name</span>={players.X}
+            <span class="attr">symbol</span>=<span class="str">"X"</span>
+            <span class="attr">isActive</span>={activePlayer === <span class="str">'X'</span> &amp;&amp; !winner}
+            <span class="attr">isWinner</span>={winner?.symbol === <span class="str">'X'</span>}
+            <span class="attr">onRename</span>={(name) =&gt; <span class="fn">handleRename</span>(<span class="str">'X'</span>, name)}
+          /<span class="tag">&gt;</span>
+          <span class="tag">&lt;PlayerInfo</span>
+            <span class="attr">name</span>={players.O}
+            <span class="attr">symbol</span>=<span class="str">"O"</span>
+            <span class="attr">isActive</span>={activePlayer === <span class="str">'O'</span> &amp;&amp; !winner}
+            <span class="attr">isWinner</span>={winner?.symbol === <span class="str">'O'</span>}
+            <span class="attr">onRename</span>={(name) =&gt; <span class="fn">handleRename</span>(<span class="str">'O'</span>, name)}
+          /<span class="tag">&gt;</span>
+        <span class="tag">&lt;/ol&gt;</span>
+
+        <span class="tag">&lt;GameBoard</span> <span class="attr">board</span>={gameBoard} <span class="attr">onSelectSquare</span>={handleSelectSquare} /<span class="tag">&gt;</span>
+
+        {(winner || hasDraw) &amp;&amp; (
+          <span class="tag">&lt;GameOver</span> <span class="attr">winner</span>={winner} <span class="attr">onRestart</span>={handleRestart} /<span class="tag">&gt;</span>
+        )}
+
+        <span class="tag">&lt;Log</span> <span class="attr">turns</span>={gameTurns} /<span class="tag">&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/main&gt;</span>
+  );
+}
+
+<span class="kw">export</span> <span class="kw">default</span> <span class="prop">App</span>;</div>
+</div>
+
+<h3 class="h3">Step 2 — GameBoard receives a derived board</h3>
+<p class="body-text">
+    Per Chapter 16, <code>GameBoard</code> has zero internal state. It receives a 2D board array
+    as a prop and a callback for square clicks. It maps the board to buttons, disables taken
+    squares, and calls the callback with row/column indices.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">GameBoard.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">GameBoard</span>({ board, onSelectSquare }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"game-board"</span><span class="tag">&gt;</span>
+      {board.<span class="fn">map</span>((row, rowIndex) =&gt; (
+        <span class="tag">&lt;li</span> <span class="attr">key</span>={rowIndex}<span class="tag">&gt;</span>
+          <span class="tag">&lt;ol&gt;</span>
+            {row.<span class="fn">map</span>((playerSymbol, colIndex) =&gt; (
+              <span class="tag">&lt;li</span> <span class="attr">key</span>={colIndex}<span class="tag">&gt;</span>
+                <span class="tag">&lt;button</span>
+                  <span class="attr">onClick</span>={() =&gt; <span class="fn">onSelectSquare</span>(rowIndex, colIndex)}
+                  <span class="attr">disabled</span>={playerSymbol !== <span class="kw">null</span>}
+                <span class="tag">&gt;</span>
+                  {playerSymbol}
+                <span class="tag">&lt;/button&gt;</span>
+              <span class="tag">&lt;/li&gt;</span>
+            ))}
+          <span class="tag">&lt;/ol&gt;</span>
+        <span class="tag">&lt;/li&gt;</span>
+      ))}
+    <span class="tag">&lt;/ol&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Step 3 — PlayerInfo with editable names (two-way binding)</h3>
+<p class="body-text">
+    Per Chapter 11, the player name input uses two-way binding. The component owns a local
+    <code>isEditing</code> flag for the edit mode toggle (Chapter 10 — functional updater), and
+    receives the player name as a prop. When the user clicks Save, the new name is sent up to
+    App via the <code>onRename</code> callback prop.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">PlayerInfo.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">import</span> { <span class="prop">useState</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+
+<span class="kw">function</span> <span class="fn">PlayerInfo</span>({ name, symbol, isActive, isWinner, onRename }) {
+  <span class="kw">const</span> [isEditing, setIsEditing] = <span class="fn">useState</span>(<span class="kw">false</span>);
+  <span class="kw">const</span> [draftName, setDraftName]  = <span class="fn">useState</span>(name);
+
+  <span class="kw">function</span> <span class="fn">handleEditClick</span>() {
+    <span class="fn">setIsEditing</span>(<span class="kw">prev</span> =&gt; !<span class="kw">prev</span>);   <span class="cmt">// functional updater — toggling depends on prev</span>
+
+    <span class="kw">if</span> (isEditing) {
+      <span class="fn">onRename</span>(draftName);             <span class="cmt">// commit on save</span>
+    } <span class="kw">else</span> {
+      <span class="fn">setDraftName</span>(name);              <span class="cmt">// reset draft when entering edit mode</span>
+    }
+  }
+
+  <span class="kw">return</span> (
+    <span class="tag">&lt;li</span> <span class="attr">className</span>={<span class="str">`player ${isActive ? <span class="str">'active'</span> : <span class="str">''</span>}`</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;span</span> <span class="attr">className</span>=<span class="str">"player-symbol"</span><span class="tag">&gt;</span>{symbol}<span class="tag">&lt;/span&gt;</span>
+      {isEditing ? (
+        <span class="tag">&lt;input</span>
+          <span class="attr">type</span>=<span class="str">"text"</span>
+          <span class="attr">required</span>
+          <span class="attr">value</span>={draftName}
+          <span class="attr">onChange</span>={(e) =&gt; <span class="fn">setDraftName</span>(e.target.value)}
+        /<span class="tag">&gt;</span>
+      ) : (
+        <span class="tag">&lt;span</span> <span class="attr">className</span>=<span class="str">"player-name"</span><span class="tag">&gt;</span>{name}<span class="tag">&lt;/span&gt;</span>
+      )}
+      {isWinner &amp;&amp; <span class="tag">&lt;span</span> <span class="attr">className</span>=<span class="str">"winner-badge"</span><span class="tag">&gt;</span>Won!<span class="tag">&lt;/span&gt;</span>}
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>={handleEditClick}<span class="tag">&gt;</span>
+        {isEditing ? <span class="str">'Save'</span> : <span class="str">'Edit'</span>}
+      <span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/li&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Step 4 — Log shows the move history</h3>
+<p class="body-text">
+    Per Chapter 17, the Log receives the same <code>turns</code> array as a prop and renders an
+    ordered list. Stable composite keys prevent React from reusing wrong DOM nodes when new turns
+    are prepended.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">Log.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">Log</span>({ turns }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;ol</span> <span class="attr">id</span>=<span class="str">"log"</span><span class="tag">&gt;</span>
+      {turns.<span class="fn">map</span>((turn, index) =&gt; {
+        <span class="kw">const</span> { row, col } = turn.square;
+        <span class="kw">return</span> (
+          <span class="tag">&lt;li</span> <span class="attr">key</span>={<span class="str">`${row}-${col}-${index}`</span><span class="tag">&gt;</span>
+            {<span class="str">`Player ${turn.player} selected row ${row}, col ${col}`</span>}
+          <span class="tag">&lt;/li&gt;</span>
+        );
+      })}
+    <span class="tag">&lt;/ol&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Step 5 — GameOver overlay</h3>
+<p class="body-text">
+    The overlay is conditionally rendered when there is a winner or a draw (Chapter 18). It
+    receives the winner object and a restart callback; restart clears <code>gameTurns</code>
+    which causes every derived value to recompute to the empty state.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">GameOver.jsx</span></div>
+        <div>JSX</div>
+    </div>
+    <div class="code-content"><span class="kw">function</span> <span class="fn">GameOver</span>({ winner, onRestart }) {
+  <span class="kw">return</span> (
+    <span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="str">"game-over"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;h2&gt;</span>Game Over!<span class="tag">&lt;/h2&gt;</span>
+      {winner ? (
+        <span class="tag">&lt;p&gt;</span>{winner.name} won!<span class="tag">&lt;/p&gt;</span>
+      ) : (
+        <span class="tag">&lt;p&gt;</span>It's a draw!<span class="tag">&lt;/p&gt;</span>
+      )}
+      <span class="tag">&lt;button</span> <span class="attr">onClick</span>={onRestart}<span class="tag">&gt;</span>Rematch!<span class="tag">&lt;/button&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  );
+}</div>
+</div>
+
+<h3 class="h3">Step 6 — Pure logic module</h3>
+<p class="body-text">
+    All derivation lives in a plain JavaScript module, separate from any component. This makes
+    the logic trivially unit-testable without rendering any React.
+</p>
+
+<div class="code-block">
+    <div class="code-header">
+        <div><span class="code-dots"><span class="code-dot"></span><span class="code-dot"></span><span class="code-dot"></span></span><span class="code-filename">winner.js</span></div>
+        <div>JS</div>
+    </div>
+    <div class="code-content"><span class="kw">const</span> WINNING_COMBINATIONS = [
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">2</span>}],
+  [{<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">2</span>}],
+  [{<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">2</span>}],
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">0</span>}],
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">1</span>}],
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">2</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">2</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">2</span>}],
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">0</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">2</span>}],
+  [{<span class="attr">row</span>: <span class="num">0</span>, <span class="attr">col</span>: <span class="num">2</span>}, {<span class="attr">row</span>: <span class="num">1</span>, <span class="attr">col</span>: <span class="num">1</span>}, {<span class="attr">row</span>: <span class="num">2</span>, <span class="attr">col</span>: <span class="num">0</span>}],
+];
+
+<span class="kw">const</span> initialGameBoard = [
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+  [<span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>],
+];
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">deriveActivePlayer</span>(turns) {
+  <span class="kw">if</span> (turns.<span class="prop">length</span> === <span class="num">0</span>) <span class="kw">return</span> <span class="str">'X'</span>;
+  <span class="kw">return</span> turns[<span class="num">0</span>].player === <span class="str">'X'</span> ? <span class="str">'O'</span> : <span class="str">'X'</span>;
+}
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">deriveGameBoard</span>(turns) {
+  <span class="kw">const</span> board = initialGameBoard.<span class="fn">map</span>(<span class="kw">row</span> =&gt; [...<span class="kw">row</span>]);
+  <span class="kw">for</span> (<span class="kw">const</span> turn <span class="kw">of</span> turns) {
+    <span class="kw">const</span> { row, col } = turn.square;
+    <span class="kw">if</span> (board[row] &amp;&amp; board[row][col] !== <span class="kw">undefined</span>) {
+      board[row][col] = turn.player;
+    }
+  }
+  <span class="kw">return</span> board;
+}
+
+<span class="kw">export</span> <span class="kw">function</span> <span class="fn">deriveWinner</span>(gameBoard, players) {
+  <span class="kw">for</span> (<span class="kw">const</span> [a, b, c] <span class="kw">of</span> WINNING_COMBINATIONS) {
+    <span class="kw">const</span> symA = gameBoard[a.row][a.col];
+    <span class="kw">const</span> symB = gameBoard[b.row][b.col];
+    <span class="kw">const</span> symC = gameBoard[c.row][c.col];
+    <span class="kw">if</span> (symA &amp;&amp; symA === symB &amp;&amp; symA === symC) {
+      <span class="kw">return</span> { <span class="attr">name</span>: players[symA], <span class="attr">symbol</span>: symA };
+    }
+  }
+  <span class="kw">return</span> <span class="kw">null</span>;
+}</div>
+</div>
+
+<div class="callout success">
+    <div class="callout-title">What this capstone demonstrates</div>
+    A ~250-line React app that uses every pattern from this volume: Fragments, feature-based
+    splits, rest/spread props, two-way binding, functional updaters, immutable updates, lifted
+    state, single source of truth, derived state from props, shared state across components, and
+    lifted computed values. Two pieces of state, no synchronisation bugs, fully testable logic,
+    clean component boundaries. This is what production React looks like.
+</div>
+
+<!-- ============================================================
+     PART 6 — INTERVIEW Q&A
+     ============================================================ -->
+<div class="part-divider">
+    <div class="part-divider-tag">Part VI</div>
+    <h2 class="part-divider-title">Interview Q&amp;A</h2>
+</div>
+
+<p class="body-text">
+    The following twenty questions cover the patterns from this volume. They are the questions
+    that come up in real React interviews at every level — junior to senior. Try to answer each
+    one aloud before reading the answer; if you can answer all twenty without notes, you are
+    ready for any React interview.
+</p>
+
+<!-- ============================================================
+     CHAPTER 20 — Interview Q&A
+     ============================================================ -->
+<div class="chapter-header">
+    <div class="chapter-tag">Chapter 20 · Interview Prep</div>
+    <h2 class="chapter-title">20 Essential React Interview Questions</h2>
+    <div class="chapter-divider"></div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">Why must JSX return a single root element, and how do you handle multiple siblings?</div>
+    <div class="qa-answer">JSX compiles to <code>React.createElement()</code>, which is a function call — and a function can only return one value. Multiple top-level siblings would compile to two function calls with no wrapper, which is a syntax error. The fix is to wrap them in a real DOM element (which adds an extra DOM node) or, preferably, in a React Fragment (<code>&lt;&gt;...&lt;/&gt;</code> or <code>&lt;Fragment&gt;...&lt;/Fragment&gt;</code>) which groups siblings without adding a DOM node.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">When would you use the explicit <code>&lt;Fragment&gt;</code> form instead of the <code>&lt;&gt;</code> shorthand?</div>
+    <div class="qa-answer">When you need to pass props to the Fragment — most commonly a <code>key</code> when rendering a list of fragments inside <code>.map()</code>. The shorthand <code>&lt;&gt;</code> accepts no attributes, so trying to put a <code>key</code> on it is a syntax error. The explicit form lets you write <code>&lt;Fragment key={id}&gt;...&lt;/Fragment&gt;</code>.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">How do you decide whether to split a component into smaller ones?</div>
+    <div class="qa-answer">Four signals: (1) the component has multiple distinct visual sections; (2) it holds unrelated state together; (3) the render function is over ~80 lines; (4) the same JSX block is repeated. Split by feature, not by layer — each new component should own one slice of UI and the state that goes with it.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What is the rest/spread prop-forwarding pattern, and when should you use it?</div>
+    <div class="qa-answer">Destructure the props you actually use, then collect the rest with <code>...rest</code> and spread them onto the underlying element with <code>{...rest}</code>. This makes the wrapper transparent — any prop the caller passes that the wrapper does not consume is forwarded automatically. Use it for any wrapper that wraps a native element (Button, Input, Card) so callers can pass arbitrary HTML attributes without you having to declare each one.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">How do you create multiple "slots" in a component beyond <code>children</code>?</div>
+    <div class="qa-answer">Any prop can hold JSX. Define named props (e.g. <code>buttons</code>, <code>header</code>, <code>footer</code>) and render them inside the component with <code>{buttons}</code>. The caller passes JSX into each slot. This is the "named slots" pattern, borrowed from Web Components and Vue.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">Explain the dynamic wrapper prop pattern. Why must the receiving variable be capitalized?</div>
+    <div class="qa-answer">Accept a prop (e.g. <code>buttonsContainer = 'menu'</code>) and reassign it to a capitalized local (<code>const ButtonsContainer = buttonsContainer</code>) before using it in JSX. The capitalization is required because JSX uses the case of the first letter to decide between native HTML tags (lowercase) and custom components (capitalized). Without the reassignment, <code>&lt;buttonsContainer&gt;</code> would be treated as a custom HTML tag and render nothing.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">How do you set default prop values in modern React, and what is the gotcha with <code>null</code>?</div>
+    <div class="qa-answer">Use destructuring defaults in the parameter list: <code>function Card({ size = 16, ... })</code>. The default applies when the prop is <code>undefined</code> (omitted). The gotcha: defaults do <strong>not</strong> apply when the caller explicitly passes <code>null</code> — the prop becomes <code>null</code>, not the default. Always write defensive code that handles <code>null</code> separately.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">When should content live in <code>index.html</code> instead of a React component?</div>
+    <div class="qa-answer">When the content is truly static — never changes in response to user interaction or app state. A global site header that appears on every page and does not need React's interactivity is a good candidate. Putting it in <code>index.html</code> means it renders before React loads, improving perceived performance. Anything dynamic belongs in a component.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What is the difference between a component and an instance? Do instances share state?</div>
+    <div class="qa-answer">A component is a function (the blueprint); an instance is what React creates when it renders that function in the tree. Each <code>&lt;Counter /&gt;</code> in your JSX produces a separate instance with its own state, props, and event handlers. Instances never share state by default — that isolation is what makes components reusable. If you need shared state, lift it to a common parent or use Context.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What is the stale-state bug, and how do you fix it?</div>
+    <div class="qa-answer">Calling <code>setState(state + 1)</code> multiple times in the same handler only applies the update once, because all calls read the same stale closure value of <code>state</code> (React batches updates and does not update the variable between calls). The fix is to use the functional updater form: <code>setState(prev =&gt; prev + 1)</code>. React calls the function at update time with the latest value from its internal queue, so chained updates apply correctly.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">When should you use a functional updater vs a direct value?</div>
+    <div class="qa-answer">Use a functional updater whenever the next state depends on the previous state: toggling booleans, incrementing counters, appending to arrays, updating object fields. Use a direct value when the next state does not depend on the previous: <code>setName('Alice')</code>. When in doubt, use the functional form — it is always safe.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What is the difference between a controlled and an uncontrolled input?</div>
+    <div class="qa-answer">A controlled input's <code>value</code> prop is bound to React state, and an <code>onChange</code> handler updates that state on every keystroke — React is the single source of truth for what the box shows. An uncontrolled input manages its own value in the DOM; you set an initial value with <code>defaultValue</code> and read the current value via a ref or <code>event.target.value</code> on submit. Controlled inputs enable validation, transformation, and programmatic updates; uncontrolled inputs are simpler but limited.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">Why does React require immutability for state updates? What happens if you mutate?</div>
+    <div class="qa-answer">React decides whether to re-render by comparing the previous state with the next using <code>Object.is</code>. If you mutate in place, the reference is unchanged, <code>Object.is</code> returns true, and React skips the re-render — the state changed but the UI never updates. Immutability (always creating a new object/array) ensures React sees a new reference and re-renders. It also enables time-travel debugging and React's concurrent features.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">How do you immutably update a single cell of a 2D array?</div>
+    <div class="qa-answer">You cannot mutate <code>board[r][c] = 'X'</code> — that mutates the inner array in place. Instead, map over the outer array; for the row that changed, return a new array mapped from the old one with the target cell replaced; for other rows, return the original. The pattern is <code>board.map((row, ri) =&gt; ri === r ? row.map((cell, ci) =&gt; ci === c ? 'X' : cell) : row)</code>.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What does "lifting state up" mean, and when do you do it?</div>
+    <div class="qa-answer">Lifting state up means moving state from a child to the nearest common ancestor of all components that need it. You do it when two or more siblings need to share or coordinate based on the same data. The parent owns the state and the update function; it passes the value down to children that display it, and passes the update function down to children that trigger changes. Data flows down, actions flow up.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What is the "single source of truth" principle, and why is it important?</div>
+    <div class="qa-answer">Each fact about the world should be stored in exactly one place; everything else should be derived. If the same fact lives in multiple pieces of state, you must keep them in sync manually, and any missed synchronisation produces inconsistent UI. Single source of truth eliminates the entire class of sync bugs by making it impossible — there is nothing to keep in sync because there is only one copy.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">How do you decide between storing a value as state vs deriving it?</div>
+    <div class="qa-answer">Store it as state if and only if it cannot be computed from existing state or props. If you can compute it from what you already have, derive it on every render. The cost of recomputing is almost always smaller than the cost of keeping multiple pieces of state in sync. Use <code>useMemo</code> only when a profile shows the derivation is genuinely expensive.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">Why is using the array index as a React <code>key</code> often a bad idea?</div>
+    <div class="qa-answer">Index keys are unstable when items are inserted, removed, or reordered — every shift in position changes the index, and React matches items by key, reusing the wrong DOM nodes. This causes state leaks (e.g. an input's value follows the wrong item after a sort). Use a stable, unique identifier from the data itself — an <code>id</code> field, or a composite key like <code>{`${row}-${col}`}</code>.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">What does "lifting a computed value up" mean, and how is it different from lifting state?</div>
+    <div class="qa-answer">Lifting a computed value up means computing a derived value once in the lowest common ancestor and passing it down as a prop, instead of having each consumer recompute it independently. It is different from lifting state because the value is not state — it does not exist independently and the user does not change it directly. We are lifting the computation, not the storage, to avoid duplicating logic across consumers.</div>
+</div>
+
+<div class="qa-item">
+    <div class="qa-question">In the Tic-Tac-Toe capstone, why does <code>GameBoard</code> have no <code>useState</code>?</div>
+    <div class="qa-answer">Because the board is fully derivable from the <code>turns</code> prop. Each render rebuilds the 2D board from the ordered list of moves using a <code>for...of</code> loop. This eliminates an entire class of state-sync bugs (the board can never disagree with the turn history), simplifies the component (no setter, no functional updater, no immutability dance), and makes undo/replay trivial — remove a turn and the board recomputes automatically.</div>
+</div>
+
+</div>
+<!-- /main-content -->
+
+<!-- ============================================================
+     ENDING PAGE
+     ============================================================ -->
+<div class="ending">
+    <div class="ending-tag">End of Volume 02</div>
+    <h2 class="ending-title">You Made It.</h2>
+    <div class="ending-divider"></div>
+    <p class="ending-text">
+        Eighteen patterns, one capstone, twenty interview questions — you now have the toolkit
+        that experienced React engineers reach for every day. Go build something.
+    </p>
+
+    <div class="ending-checklist">
+        <div class="ending-checklist-item">Fragments &amp; JSX one-root rule</div>
+        <div class="ending-checklist-item">Feature-based component splits</div>
+        <div class="ending-checklist-item">Rest/spread prop forwarding</div>
+        <div class="ending-checklist-item">Named slots &amp; dynamic wrappers</div>
+        <div class="ending-checklist-item">Default prop values</div>
+        <div class="ending-checklist-item">Static content in <code>index.html</code></div>
+        <div class="ending-checklist-item">Component instance isolation</div>
+        <div class="ending-checklist-item">Functional state updaters</div>
+        <div class="ending-checklist-item">Two-way binding for inputs</div>
+        <div class="ending-checklist-item">Immutable nested state updates</div>
+        <div class="ending-checklist-item">Lifting state up between siblings</div>
+        <div class="ending-checklist-item">Single source of truth</div>
+        <div class="ending-checklist-item">Deriving state from props</div>
+        <div class="ending-checklist-item">Sharing state across multiple components</div>
+        <div class="ending-checklist-item">Lifting computed values up</div>
+    </div>
+
+    <div class="ending-footer">
+        <div>React Deep Dive · Vol. 02</div>
+        <div>Production-Ready Patterns</div>
+    </div>
+</div>
+
+</body>
+</html>
