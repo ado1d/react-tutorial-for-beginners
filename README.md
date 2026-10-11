@@ -4,3 +4,7 @@ Check out the [Components, JSX, Props, State & More Guide](https://ado1d.github.
 
 ## Part2 - More Deep Dive
 Check out the [Deep Dive Guide](https://ado1d.github.io/react-tutorial-for-beginners/React%20Essentialls%20-%20Deep%20Dive/).
+
+
+## Recap React Basics
+Check out [Review Guide](https://www.freecodecamp.org/learn/front-end-development-libraries-v9/review-react-basics/review-react-basics).
